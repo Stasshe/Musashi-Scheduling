@@ -185,6 +185,19 @@ export default function ScheduleGrid() {
   };
 
   const handleSaveSchedule = async (scheduleData: EditScheduleData) => {
+    // 必須項目バリデーション
+    if (
+      !scheduleData.subject ||
+      !scheduleData.className ||
+      !scheduleData.date ||
+      !scheduleData.startTime ||
+      !scheduleData.endTime ||
+      scheduleData.column === undefined ||
+      isNaN(Number(scheduleData.column))
+    ) {
+      alert('全ての項目を正しく入力してください。');
+      return;
+    }
     try {
       if (scheduleData.id) {
         // 編集の場合
@@ -192,14 +205,16 @@ export default function ScheduleGrid() {
         await set(scheduleRef, {
           ...scheduleData,
           classId: `${scheduleData.subject}_${scheduleData.className}`,
+          id: scheduleData.id
         });
       } else {
         // 新規作成の場合
+        const { subject, className, date, startTime, endTime, column } = scheduleData;
+        const classId = `${subject}_${className}`;
         const scheduleRef = ref(database, 'schedule');
-        await push(scheduleRef, {
-          ...scheduleData,
-          classId: `${scheduleData.subject}_${scheduleData.className}`,
-        });
+        const newRef = await push(scheduleRef, { subject, className, date, startTime, endTime, column, classId });
+        // idのみ追加
+        await set(newRef, { subject, className, date, startTime, endTime, column, classId, id: newRef.key });
       }
       setShowEditModal(false);
       setEditingSchedule(null);

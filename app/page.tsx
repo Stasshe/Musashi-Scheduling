@@ -27,7 +27,7 @@ export default function Home() {
           <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded mb-4">
             超複雑な宮宿夏期講習のスケジュールを、<span className="font-bold">みんなで編集</span>していくためのシステムです。
             <br />
-            学校のiPadデモ見れます。というかそっちの方が見やすいからiPad推奨。
+            学校のiPadでも見られます。というかそっちの方が見やすいからiPad推奨。
             <p className="text-sm sm:text-sm text-xs text-gray-800 font-semibold">
               このサイトは、<span className="underline">スケジュールがクラウドで管理されます</span>。皆がスケジュールを直接編集することで、初めて成り立ちます。<br />
               <span className="text-yellow-700 font-bold">気づいた人からスケジュール追加・編集を誠によろしくお願いします。</span><br />

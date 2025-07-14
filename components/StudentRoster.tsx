@@ -74,30 +74,6 @@ export default function StudentRoster() {
     }
   }, []);
 
-  // 生徒追加
-  const addStudent = async (subject: string, className: string) => {
-    if (newStudentName.trim()) {
-      setIsSaving(true);
-      let students = data[subject]?.[className] || [];
-      students = students.filter(name => name !== 'nobody');
-      const newList = [...students, newStudentName.trim()];
-      await set(ref(database, `roster/${subject}/${className}`), newList);
-      setNewStudentName('');
-      setIsSaving(false);
-      toast({ title: '保存しました', description: `${newStudentName} を追加しました。` });
-    }
-  };
-
-  // 生徒削除
-  const removeStudent = async (subject: string, className: string, studentName: string) => {
-    setIsSaving(true);
-    const students = data[subject]?.[className] || [];
-    const newList = students.filter(name => name !== studentName);
-    await set(ref(database, `roster/${subject}/${className}`), newList);
-    setIsSaving(false);
-    toast({ title: '保存しました', description: `${studentName} を削除しました。` });
-  };
-
   // クラス追加
   const addClass = async (subject: string) => {
     if (newClassName.trim()) {
@@ -216,8 +192,12 @@ export default function StudentRoster() {
               <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {Object.entries(data[subject.id as keyof typeof data] || {}).map(([className, students]) => {
                   const safeStudents = Array.isArray(students) ? students : [];
+                  // nobodyを除外したリスト
+                  const displayStudents = safeStudents.filter(s => s !== 'nobody');
                   const isEditing = editingClass?.subject === subject.id && editingClass?.className === className;
                   const editClassNameValue = isEditing ? editingClass.newClassName : className;
+                  // 編集時はeditStudentsからnobodyを除外
+                  const editingDisplayStudents = editStudents.filter(s => s !== 'nobody');
                   return (
                     <Card key={className} className={isEditing ? 'border-2 border-blue-500 bg-blue-50' : ''}>
                       <CardHeader className="pb-2 p-2 sm:p-3">
@@ -305,7 +285,7 @@ export default function StudentRoster() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="text-xs h-5 px-2">
-                            {safeStudents.length}名
+                            {(isEditing ? editingDisplayStudents.length : displayStudents.length)}名
                           </Badge>
                           {isEditing && (
                             <Badge variant="outline" className="text-blue-600 border-blue-400 text-xs h-5 px-2">編集中</Badge>
@@ -315,7 +295,7 @@ export default function StudentRoster() {
                       <CardContent className="space-y-2 p-2 sm:p-3 pt-0">
                         {/* 生徒リスト */}
                         <div className="grid grid-cols-2 gap-1">
-                          {(isEditing ? editStudents : safeStudents).map((student, index) => (
+                          {(isEditing ? editingDisplayStudents : displayStudents).map((student, index) => (
                             <div key={index} className="flex items-center justify-between p-1 sm:p-2 bg-gray-50 rounded text-xs sm:text-sm">
                               <span className="truncate pr-2">{student}</span>
                               {isEditing && (

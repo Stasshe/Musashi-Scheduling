@@ -27,7 +27,17 @@ interface InitialSetupModalProps {
 
 export default function InitialSetupModal({ isOpen, onClose, name: propName, setName: propSetName, registeredClasses, setRegisteredClasses, editMode }: InitialSetupModalProps) {
   // editMode=trueならpropsからname/registeredClassesを使う
-  const [name, setName] = editMode ? [propName ?? '', propSetName ?? (() => {})] : useState('');
+  // 名前入力時に全角・半角スペースを除去する
+  const sanitizeName = (input: string) => input.replace(/[\s　]+/g, '');
+  const [name, setNameRaw] = editMode ? [propName ?? '', propSetName ?? (() => {})] : useState('');
+  const setName = (val: string) => {
+    const sanitized = sanitizeName(val);
+    if (editMode && propSetName) {
+      propSetName(sanitized);
+    } else {
+      setNameRaw(sanitized);
+    }
+  };
   const [selectedClasses, setSelectedClasses] = useState<string[]>(registeredClasses ?? []);
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
   // 新規登録時用のローカルストレージsetter
@@ -158,9 +168,9 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                 <p className="text-sm text-gray-600">
                   すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
                   <br />
-                  例: 苗字が同じ人がいる場合は名前を1文字追加してください。
+                  フルネームで、苗字と名前を分けずに入力してください。
                   <br />
-                  例: 松下 → 松下彰
+                  例: 松下 → 松下彰忠
                 </p>
                 <Input
                   id="name"

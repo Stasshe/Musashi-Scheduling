@@ -14,6 +14,18 @@ import type { Schedule } from '@/types';
 /**
  * スケジュールグリッドコンポーネント
  * 日付ごとに授業スケジュールを表示するグリッド
+ * 
+ * interface Schedule {
+ *  id: string;
+ *  classId: string;
+ *  className: string;
+ *  subject: string;
+ *  teacher: string;
+ *  date: string;
+ *  startTime: string;
+ *  endTime: string;
+ *  column: number; // 0-5の列番号
+ * }
  */
 export default function ScheduleGrid() {
   const [currentDate, setCurrentDate] = useState(new Date());

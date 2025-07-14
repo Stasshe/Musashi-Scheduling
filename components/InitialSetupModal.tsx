@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { UserProfile } from '@/types/';
 
 const SUBJECTS = [
   { id: 'english', name: '英語' },
@@ -34,7 +35,7 @@ interface InitialSetupModalProps {
 export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModalProps) {
   const [name, setName] = useState('');
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
-  const [userProfile, setUserProfile] = useLocalStorage('userProfile', { name: '', registeredClasses: [] });
+  const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
 
   const handleClassToggle = (className: string) => {
     setSelectedClasses(prev => 
@@ -47,6 +48,7 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
   const handleSave = () => {
     if (name.trim()) {
       setUserProfile({
+        id: userProfile?.id || '',
         name: name.trim(),
         registeredClasses: selectedClasses
       });

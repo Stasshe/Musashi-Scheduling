@@ -5,7 +5,7 @@ import { format, addDays, isToday } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 
-const TIME_SLOTS = [];
+const TIME_SLOTS: string[] = [];
 for (let hour = 8; hour <= 22; hour++) {
   for (let minute = 0; minute < 60; minute += 30) {
     if (hour === 22 && minute > 30) break;

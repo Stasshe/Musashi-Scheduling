@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -79,4 +80,11 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ローマ数字・二次用フォント */
+.roman-numeral {
+  font-family: 'Roboto Slab', serif;
+  font-weight: 700;
+  letter-spacing: 0.07em;
 }

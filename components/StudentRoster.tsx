@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { database } from '@/lib/firebase';
+import { ref, onValue, set, update, remove } from 'firebase/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,92 +19,63 @@ const SUBJECTS = [
   { id: 'other', name: 'その他' }
 ];
 
-// サンプルデータ
+
 type RosterData = {
   [subjectId: string]: {
     [className: string]: string[];
   };
 };
 
-const INITIAL_DATA: RosterData = {
-  english: {
-    '英語A': ['田中太郎', '佐藤花子', '山田次郎'],
-    '英語B': ['鈴木一郎', '高橋美咲', '井上健太'],
-    '英語C': ['渡辺明美', '中村和也']
-  },
-  japanese: {
-    '国語A': ['田中太郎', '山田次郎', '高橋美咲'],
-    '国語B': ['佐藤花子', '鈴木一郎', '渡辺明美']
-  },
-  math: {
-    '数学A': ['田中太郎', '井上健太', '中村和也'],
-    '数学B': ['佐藤花子', '山田次郎'],
-    '数学C': ['鈴木一郎', '高橋美咲', '渡辺明美']
-  },
-  science: {
-    '理科A': ['田中太郎', '佐藤花子', '山田次郎', '井上健太'],
-    '理科B': ['鈴木一郎', '高橋美咲', '渡辺明美', '中村和也']
-  },
-  social: {
-    '社会A': ['田中太郎', '山田次郎', '高橋美咲', '中村和也'],
-    '社会B': ['佐藤花子', '鈴木一郎', '井上健太', '渡辺明美']
-  },
-  other: {
-    'その他A': ['田中太郎', '佐藤花子']
-  }
-};
-
 export default function StudentRoster() {
-  const [data, setData] = useState<RosterData>(INITIAL_DATA);
+  const [data, setData] = useState<RosterData>({});
   const [editingClass, setEditingClass] = useState<{ subject: string; className: string } | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newClassName, setNewClassName] = useState('');
 
-  const addStudent = (subject: string, className: string) => {
+
+  // Firebaseからデータ取得
+  useEffect(() => {
+    const rosterRef = ref(database, 'roster');
+    const unsubscribe = onValue(rosterRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setData(val);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 生徒追加
+  const addStudent = async (subject: string, className: string) => {
     if (newStudentName.trim()) {
-      setData(prev => ({
-        ...prev,
-        [subject]: {
-          ...prev[subject],
-          [className]: [...(prev[subject]?.[className] || []), newStudentName.trim()]
-        }
-      }));
+      const students = data[subject]?.[className] || [];
+      const newList = [...students, newStudentName.trim()];
+      await set(ref(database, `roster/${subject}/${className}`), newList);
       setNewStudentName('');
     }
   };
 
-  const removeStudent = (subject: string, className: string, studentName: string) => {
-    setData(prev => ({
-      ...prev,
-      [subject]: {
-        ...prev[subject],
-        [className]: prev[subject]?.[className]?.filter(name => name !== studentName) || []
-      }
-    }));
+
+  // 生徒削除
+  const removeStudent = async (subject: string, className: string, studentName: string) => {
+    const students = data[subject]?.[className] || [];
+    const newList = students.filter(name => name !== studentName);
+    await set(ref(database, `roster/${subject}/${className}`), newList);
   };
 
-  const addClass = (subject: string) => {
+
+  // クラス追加
+  const addClass = async (subject: string) => {
     if (newClassName.trim()) {
-      setData(prev => ({
-        ...prev,
-        [subject]: {
-          ...prev[subject],
-          [newClassName.trim()]: []
-        }
-      }));
+      await update(ref(database, `roster/${subject}`), {
+        [newClassName.trim()]: []
+      });
       setNewClassName('');
     }
   };
 
-  const removeClass = (subject: string, className: string) => {
-    setData(prev => {
-      const newSubjectData = { ...prev[subject] };
-      delete newSubjectData[className];
-      return {
-        ...prev,
-        [subject]: newSubjectData
-      };
-    });
+
+  // クラス削除
+  const removeClass = async (subject: string, className: string) => {
+    await remove(ref(database, `roster/${subject}/${className}`));
   };
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import ScheduleModal from './ScheduleModal';
 import { database } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
@@ -14,13 +15,17 @@ import type { Schedule } from '@/types';
  * スケジュールグリッドコンポーネント
  * 日付ごとに授業スケジュールを表示するグリッド
  */
-
 export default function ScheduleGrid() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
   const [selectedItem, setSelectedItem] = useState<Schedule | null>(null);
   const [dateOffset, setDateOffset] = useState(0); // 横スクロール用
+  const [roster, setRoster] = useState<any>({});
+
+  // useLocalStorageでuserProfile取得
+  const [userProfile] = useLocalStorage<any>('userProfile', { name: '' });
+  const selectedStudentName = userProfile?.name || '';
 
   useEffect(() => {
     const checkMobile = () => {
@@ -40,6 +45,16 @@ export default function ScheduleGrid() {
         ? val
         : Object.values(val);
       setSchedule(arr);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Firebaseから名簿(roster)取得
+  useEffect(() => {
+    const rosterRef = ref(database, 'roster');
+    const unsubscribe = onValue(rosterRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setRoster(val);
     });
     return () => unsubscribe();
   }, []);
@@ -175,23 +190,30 @@ export default function ScheduleGrid() {
                           />
                         ))}
                         {/* 授業アイテム */}
-                        {getScheduleForDate(date, columnIndex).map(item => (
-                          <div
-                            key={item.id}
-                            className={`absolute left-0.5 right-0.5 rounded-sm border p-1 shadow-sm cursor-pointer hover:opacity-80 ${
-                              SUBJECT_COLORS[item.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS['その他']
-                            }`}
-                            style={{
-                              top: `${getTimeSlotPosition(item.startTime)}px`,
-                              height: `${getScheduleHeight(item.startTime, item.endTime)}px`
-                            }}
-                            onClick={() => handleItemClick(item)}
-                          >
-                            <div className="font-medium text-xs leading-tight">
-                              {truncateTitle(item.className ?? item.subject)}
+                        {getScheduleForDate(date, columnIndex).map(item => {
+                          // 参加判定: roster[subject][className]にselectedStudentNameが含まれているか
+                          const isMyClass =
+                            item.subject &&
+                            item.className &&
+                            roster[item.subject]?.[item.className]?.includes(selectedStudentName);
+                          return (
+                            <div
+                              key={item.id}
+                              className={`absolute left-0.5 right-0.5 rounded-sm border p-1 shadow-sm cursor-pointer hover:opacity-80 ${
+                                SUBJECT_COLORS[item.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS['その他']
+                              }${isMyClass ? ' ring-2 ring-blue-400' : ''}`}
+                              style={{
+                                top: `${getTimeSlotPosition(item.startTime)}px`,
+                                height: `${getScheduleHeight(item.startTime, item.endTime)}px`
+                              }}
+                              onClick={() => handleItemClick(item)}
+                            >
+                              <div className="font-medium text-xs leading-tight">
+                                {truncateTitle(item.className ?? item.subject)}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ))}
                   </div>
@@ -206,4 +228,5 @@ export default function ScheduleGrid() {
       <ScheduleModal selectedItem={selectedItem} onClose={closeModal} />
     </>
   );
+// ...existing code...
 }

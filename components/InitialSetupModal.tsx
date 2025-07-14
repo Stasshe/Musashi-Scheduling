@@ -129,7 +129,7 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
             <Input
               id="name"
               type="text"
-              placeholder="石田"
+              placeholder="苗字を入力"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="text-lg"

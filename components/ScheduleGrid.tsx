@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { database } from '@/lib/firebase';
+import { ref, onValue } from 'firebase/database';
 import { format, addDays, isToday } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,36 +26,8 @@ interface ScheduleItem {
   column: number;
 }
 
-// サンプルデータ
-const SAMPLE_SCHEDULE: ScheduleItem[] = [
-  {
-    id: '1',
-    title: '数学A',
-    subject: '数学',
-    teacher: '田中先生',
-    startTime: '09:00',
-    endTime: '10:30',
-    column: 0
-  },
-  {
-    id: '2',
-    title: '英語B',
-    subject: '英語',
-    teacher: '佐藤先生',
-    startTime: '10:00',
-    endTime: '11:30',
-    column: 1
-  },
-  {
-    id: '3',
-    title: '国語A',
-    subject: '国語',
-    teacher: '鈴木先生',
-    startTime: '14:00',
-    endTime: '15:30',
-    column: 0
-  }
-];
+// Firebaseから取得したスケジュールデータを格納
+// データ構造はSAMPLE_SCHEDULEと同じ
 
 const SUBJECT_COLORS = {
   '数学': 'bg-blue-100 text-blue-800 border-blue-200',
@@ -67,15 +41,29 @@ const SUBJECT_COLORS = {
 export default function ScheduleGrid() {
   const [currentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Firebaseからスケジュール取得
+  useEffect(() => {
+    const scheduleRef = ref(database, 'schedule');
+    const unsubscribe = onValue(scheduleRef, (snapshot) => {
+      const val = snapshot.val() || [];
+      // オブジェクト形式の場合は配列に変換
+      const arr = Array.isArray(val)
+        ? val
+        : Object.values(val);
+      setSchedule(arr);
+    });
+    return () => unsubscribe();
   }, []);
 
   const daysToShow = isMobile ? 1 : 4;
@@ -97,7 +85,6 @@ export default function ScheduleGrid() {
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-xl font-bold text-gray-900">授業スケジュール</h2>
       </div>
-      
       <div className="overflow-x-auto">
         <div className="min-w-full">
           {/* ヘッダー */}
@@ -107,7 +94,7 @@ export default function ScheduleGrid() {
             </div>
             {dates.map((date, dateIndex) => (
               <div key={dateIndex} className="flex-1 min-w-0">
-                <div className={`p-3 text-center border-r border-gray-200 ${isToday(date) ? 'bg-blue-50' : ''}`}>
+                <div className={`p-3 text-center border-r border-gray-200 ${isToday(date) ? 'bg-blue-50' : ''}`}> 
                   <div className="font-medium text-gray-900">
                     {format(date, 'M/d', { locale: ja })}
                   </div>
@@ -126,7 +113,6 @@ export default function ScheduleGrid() {
               </div>
             ))}
           </div>
-
           {/* タイムグリッド */}
           <div className="flex">
             {/* 時間軸 */}
@@ -141,7 +127,6 @@ export default function ScheduleGrid() {
                 </div>
               ))}
             </div>
-
             {/* 各日のスケジュール */}
             {dates.map((date, dateIndex) => (
               <div key={dateIndex} className="flex-1 relative border-r border-gray-200">
@@ -164,9 +149,8 @@ export default function ScheduleGrid() {
                           }}
                         />
                       ))}
-
-                      {/* 授業アイテム（サンプル、今日のみ表示） */}
-                      {dateIndex === 0 && SAMPLE_SCHEDULE
+                      {/* 授業アイテム（Firebaseデータ、今日のみ表示） */}
+                      {dateIndex === 0 && schedule
                         .filter(item => item.column === columnIndex)
                         .map(item => (
                           <div

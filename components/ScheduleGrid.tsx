@@ -158,7 +158,7 @@ export default function ScheduleGrid() {
     
     // 2時間後の時刻を計算
     const startIndex = TIME_SLOTS.indexOf(timeSlot);
-    const endIndex = Math.min(startIndex + 5, TIME_SLOTS.length - 1); // 5スロット後（2時間後）
+    const endIndex = Math.min(startIndex + 2, TIME_SLOTS.length - 1); // 2スロット後（2時間後）
     const endTime = TIME_SLOTS[endIndex];
 
     setEditingSchedule({
@@ -178,7 +178,7 @@ export default function ScheduleGrid() {
       className: '',
       date: format(new Date(), 'yyyy-MM-dd'),
       startTime: TIME_SLOTS[0],
-      endTime: TIME_SLOTS[5], // 2時間後
+      endTime: TIME_SLOTS[2], // 2時間後
       column: 0
     });
     setShowEditModal(true);
@@ -446,7 +446,7 @@ function EditScheduleModal({
   const handleStartTimeChange = (startTime: string) => {
     // startTimeが変更された場合、endTimeを2時間後に設定
     const startIndex = TIME_SLOTS.indexOf(startTime);
-    const endIndex = Math.min(startIndex + 5, TIME_SLOTS.length - 1); // 5スロット後（2時間後）
+    const endIndex = Math.min(startIndex + 2, TIME_SLOTS.length - 1); // 2スロット後（2時間後）
     const endTime = TIME_SLOTS[endIndex];
     
     setFormData(prev => ({

@@ -37,9 +37,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose }) 
             </span>
           </div>
           <div className="flex items-center">
-            <span className="text-sm font-medium text-gray-600 w-16">教室:</span>
             <span className="text-sm text-gray-900">
-              {selectedItem.column + 1}限目
+              {selectedItem.column + 1}列目
             </span>
           </div>
         </div>

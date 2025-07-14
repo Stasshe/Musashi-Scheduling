@@ -2,12 +2,28 @@
 
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Header() {
   const [userProfile, setUserProfile] = useLocalStorage('userProfile', { name: '', registeredClasses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile.name || '');
+
+  // ローカルストレージ変更時に userProfile を更新
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'userProfile') {
+        try {
+          const newProfile = event.newValue ? JSON.parse(event.newValue) : { name: '', registeredClasses: [] };
+          setUserProfile(newProfile);
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [setUserProfile]);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">

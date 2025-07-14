@@ -32,11 +32,13 @@ const SUBJECT_COLORS = {
   'その他': 'bg-gray-100 text-gray-800 border-gray-200'
 };
 
+
 export default function ScheduleGrid() {
-  const [currentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<ScheduleItem | null>(null);
+  const [dateOffset, setDateOffset] = useState(0); // 横スクロール用
 
   useEffect(() => {
     const checkMobile = () => {
@@ -60,8 +62,9 @@ export default function ScheduleGrid() {
     return () => unsubscribe();
   }, []);
 
+
   const daysToShow = isMobile ? 1 : 4;
-  const dates = Array.from({ length: daysToShow }, (_, i) => addDays(currentDate, i));
+  const dates = Array.from({ length: daysToShow }, (_, i) => addDays(currentDate, dateOffset + i));
 
   const getTimeSlotPosition = (time: string) => {
     const index = TIME_SLOTS.indexOf(time);
@@ -99,8 +102,31 @@ export default function ScheduleGrid() {
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-screen flex flex-col">
-        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">授業スケジュール</h2>
+          <div className="flex gap-2">
+            <button
+              className="px-2 py-1 rounded bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 text-sm"
+              onClick={() => setDateOffset(dateOffset - 1)}
+              aria-label="前の日付"
+            >
+              ◀
+            </button>
+            <button
+              className="px-2 py-1 rounded bg-blue-100 border border-blue-300 text-blue-700 hover:bg-blue-200 text-sm"
+              onClick={() => setDateOffset(0)}
+              aria-label="今日に戻る"
+            >
+              今日に戻る
+            </button>
+            <button
+              className="px-2 py-1 rounded bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 text-sm"
+              onClick={() => setDateOffset(dateOffset + 1)}
+              aria-label="次の日付"
+            >
+              ▶
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-hidden">
           <div className="h-full flex flex-col">

@@ -1,33 +1,25 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import ScheduleModal from './ScheduleModal';
 import { database } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
 import { format, addDays, isToday, isSameDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { SUBJECT_COLORS } from '@/config/constants';
+import { TIME_SLOTS } from '@/config/timeslots';
+import type { Schedule } from '@/types';
 
-const TIME_SLOTS: string[] = [];
-for (let hour = 8; hour <= 22; hour++) {
-  const timeString = `${hour.toString().padStart(2, '0')}:00`;
-  TIME_SLOTS.push(timeString);
-}
-
-interface ScheduleItem {
-  id: string;
-  title: string;
-  subject: string;
-  startTime: string;
-  endTime: string;
-  column: number;
-  date: string; // 日付フィールドを追加
-}
+/**
+ * スケジュールグリッドコンポーネント
+ * 日付ごとに授業スケジュールを表示するグリッド
+ */
 
 export default function ScheduleGrid() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<ScheduleItem | null>(null);
+  const [schedule, setSchedule] = useState<Schedule[]>([]);
+  const [selectedItem, setSelectedItem] = useState<Schedule | null>(null);
   const [dateOffset, setDateOffset] = useState(0); // 横スクロール用
 
   useEffect(() => {
@@ -81,7 +73,7 @@ export default function ScheduleGrid() {
     return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
   };
 
-  const handleItemClick = (item: ScheduleItem) => {
+  const handleItemClick = (item: Schedule) => {
     setSelectedItem(item);
   };
 
@@ -196,7 +188,7 @@ export default function ScheduleGrid() {
                             onClick={() => handleItemClick(item)}
                           >
                             <div className="font-medium text-xs leading-tight">
-                              {truncateTitle(item.title)}
+                              {truncateTitle(item.className ?? item.subject)}
                             </div>
                           </div>
                         ))}
@@ -211,43 +203,7 @@ export default function ScheduleGrid() {
       </div>
 
       {/* モーダルウィンドウ */}
-      {selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-bold text-gray-900">{selectedItem.title}</h3>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 text-xl"
-              >
-                ×
-              </button>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-600 w-16">科目:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  SUBJECT_COLORS[selectedItem.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS['その他']
-                }`}>
-                  {selectedItem.subject}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-600 w-16">時間:</span>
-                <span className="text-sm text-gray-900">
-                  {selectedItem.startTime} - {selectedItem.endTime}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-600 w-16">教室:</span>
-                <span className="text-sm text-gray-900">
-                  {selectedItem.column + 1}限目
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ScheduleModal selectedItem={selectedItem} onClose={closeModal} />
     </>
   );
 }

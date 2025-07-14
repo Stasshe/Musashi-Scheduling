@@ -41,9 +41,21 @@ export function EditScheduleModal({
 
   const handleStartTimeChange = (startTime: string) => {
     // startTimeが変更された場合、endTimeを2時間後に設定
+    let endTime = '';
     const startIndex = TIME_SLOTS.indexOf(startTime);
-    const endIndex = Math.min(startIndex + 2, TIME_SLOTS.length - 1); // 2スロット後（2時間後）
-    const endTime = TIME_SLOTS[endIndex];
+    if (startIndex !== -1) {
+      const endIndex = Math.min(startIndex + 2, TIME_SLOTS.length - 1); // 2スロット後（2時間後）
+      endTime = TIME_SLOTS[endIndex];
+    } else {
+      // startTimeがTIME_SLOTSに存在しない場合はDate型で2時間加算
+      const [h, m] = startTime.split(":").map(Number);
+      const date = new Date();
+      date.setHours(h, m, 0, 0);
+      date.setHours(date.getHours() + 2);
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      endTime = `${hh}:${mm}`;
+    }
     setFormData(prev => ({
       ...prev,
       startTime,
@@ -137,7 +149,7 @@ export function EditScheduleModal({
               <input
                 type="time"
                 value={formData.startTime}
-                onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                onChange={e => handleStartTimeChange(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
                 step={300} // 5分刻み

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
 import { database } from '@/lib/firebase';
 import { ref, onValue, set, update, remove } from 'firebase/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Save } from 'lucide-react';
 
 const SUBJECTS = [
   { id: 'english', name: '英語' },
@@ -31,6 +32,7 @@ export default function StudentRoster() {
   const [editingClass, setEditingClass] = useState<{ subject: string; className: string } | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newClassName, setNewClassName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
 
   // Firebaseからデータ取得
@@ -46,30 +48,35 @@ export default function StudentRoster() {
   // 生徒追加
   const addStudent = async (subject: string, className: string) => {
     if (newStudentName.trim()) {
+      setIsSaving(true);
       let students = data[subject]?.[className] || [];
-      // 'nobody'がいる場合は除去
       students = students.filter(name => name !== 'nobody');
       const newList = [...students, newStudentName.trim()];
       await set(ref(database, `roster/${subject}/${className}`), newList);
       setNewStudentName('');
+      setIsSaving(false);
+      toast({ title: '保存しました', description: `${newStudentName} を追加しました。` });
     }
   };
 
 
   // 生徒削除
   const removeStudent = async (subject: string, className: string, studentName: string) => {
+    setIsSaving(true);
     const students = data[subject]?.[className] || [];
     const newList = students.filter(name => name !== studentName);
     await set(ref(database, `roster/${subject}/${className}`), newList);
+    setIsSaving(false);
+    toast({ title: '保存しました', description: `${studentName} を削除しました。` });
   };
 
 
   // クラス追加
   const addClass = async (subject: string) => {
     if (newClassName.trim()) {
+      setIsSaving(true);
       const subjectRef = ref(database, `roster/${subject}`);
       const snapshot = await import('firebase/database').then(({ get }) => get(subjectRef));
-      // 生徒が最低1人必要な場合は'nobody'を追加
       const initialStudents = ['nobody'];
       if (snapshot.exists()) {
         await update(subjectRef, {
@@ -81,13 +88,18 @@ export default function StudentRoster() {
         });
       }
       setNewClassName('');
+      setIsSaving(false);
+      toast({ title: '保存しました', description: `${newClassName} クラスを追加しました。` });
     }
   }
 
 
   // クラス削除
   const removeClass = async (subject: string, className: string) => {
+    setIsSaving(true);
     await remove(ref(database, `roster/${subject}/${className}`));
+    setIsSaving(false);
+    toast({ title: '保存しました', description: `${className} クラスを削除しました。` });
   };
 
   return (
@@ -131,22 +143,29 @@ export default function StudentRoster() {
               {/* クラス一覧 */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {Object.entries(data[subject.id as keyof typeof data] || {}).map(([className, students]) => (
-                  <Card key={className}>
+                  <Card key={className} className={editingClass?.subject === subject.id && editingClass?.className === className ? 'border-2 border-blue-500 bg-blue-50' : ''}>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{className}</CardTitle>
                         <div className="flex space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingClass(
-                              editingClass?.subject === subject.id && editingClass?.className === className
-                                ? null
-                                : { subject: subject.id, className }
-                            )}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
+                          {editingClass?.subject === subject.id && editingClass?.className === className ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingClass(null)}
+                              disabled={isSaving}
+                            >
+                              <Save className="w-4 h-4 text-blue-600" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingClass({ subject: subject.id, className })}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -157,9 +176,14 @@ export default function StudentRoster() {
                           </Button>
                         </div>
                       </div>
-                      <Badge variant="secondary" className="w-fit">
-                        {students.length}名
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="w-fit">
+                          {students.length}名
+                        </Badge>
+                        {editingClass?.subject === subject.id && editingClass?.className === className && (
+                          <Badge variant="outline" className="text-blue-600 border-blue-400">編集中</Badge>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {/* 生徒リスト */}
@@ -183,25 +207,33 @@ export default function StudentRoster() {
 
                       {/* 生徒追加 */}
                       {editingClass?.subject === subject.id && editingClass?.className === className && (
-                        <div className="flex space-x-2">
-                          <Input
-                            placeholder="生徒名"
-                            value={newStudentName}
-                            onChange={(e) => setNewStudentName(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                addStudent(subject.id, className);
-                              }
-                            }}
-                            className="text-sm"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => addStudent(subject.id, className)}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <>
+                          <div className="flex space-x-2 items-center">
+                            <Input
+                              placeholder="生徒名"
+                              value={newStudentName}
+                              onChange={(e) => setNewStudentName(e.target.value)}
+                              className="text-sm"
+                              disabled={isSaving}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => addStudent(subject.id, className)}
+                              disabled={isSaving}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                            {isSaving && <span className="text-xs text-blue-600 ml-2">保存中...</span>}
+                          </div>
+                          <div className="flex justify-end mt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingClass(null)}
+                              disabled={isSaving}
+                            >キャンセル</Button>
+                          </div>
+                        </>
                       )}
                     </CardContent>
                   </Card>

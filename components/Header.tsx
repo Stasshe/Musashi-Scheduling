@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useState, useEffect } from 'react';
-import { FiMenu, FiUser, FiEdit2 } from 'react-icons/fi';
+import { FiEdit2 } from 'react-icons/fi';
 import ScheduleIcon from './ui/schedule';
 import RosterIcon from './ui/roster';
 
@@ -11,8 +11,7 @@ export default function Header({ active }: { active: string }) {
   const [userProfile, setUserProfile] = useLocalStorage('userProfile', { name: '', registeredClasses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile.name || '');
-  const [navOpen, setNavOpen] = useState(false);
-
+  
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {
     setEditName(userProfile.name || '');

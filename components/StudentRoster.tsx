@@ -159,27 +159,43 @@ export default function StudentRoster() {
               {/* 新しいクラス追加 */}
               <Card>
                 <CardContent className="p-3 sm:p-4">
-                  <div className="flex space-x-2">
-                    <Input
-                      placeholder={`新しい${subject.name}クラス名 例: 二次対策Ⅱ`}
-                      value={newClassName}
-                      onChange={(e) => setNewClassName(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          addClass(subject.id);
-                        }
-                      }}
-                      className="text-xs sm:text-sm h-8 sm:h-10"
-                    />
-                    <Button onClick={() => addClass(subject.id)} size="sm" className="h-8 sm:h-10 text-xs sm:text-sm px-2 sm:px-3">
-                      <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                      追加
-                    </Button>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      クラスを追加すると、初期生徒として「nobody」が登録されます。<br />
-                      クラスの名前に教科名をつける必要はありません。
-                    </p>
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="flex flex-row gap-2 w-full">
+                      <Input
+                        placeholder={`新しい${subject.name}クラス名 例: 二次対策Ⅱ`}
+                        value={newClassName}
+                        onChange={(e) => setNewClassName(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            addClass(subject.id);
+                          }
+                        }}
+                        className="text-xs sm:text-sm h-8 sm:h-10 flex-1 min-w-0"
+                      />
+                      <Button onClick={() => addClass(subject.id)} size="sm" className="h-8 sm:h-10 text-xs sm:text-sm px-2 sm:px-3 whitespace-nowrap">
+                        <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                        追加
+                      </Button>
+                    </div>
+                    <div className="flex flex-row flex-wrap gap-1 mt-1 justify-center">
+                      {["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ"].map((roman, idx) => (
+                        <Button
+                          key={roman}
+                          size="sm"
+                          variant="outline"
+                          className="h-7 sm:h-8 px-2 text-xs"
+                          onClick={() => setNewClassName(newClassName + roman)}
+                          type="button"
+                        >
+                          {roman}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
+                    <p className="text-xs sm:text-sm font-semibold mt-2">
+                    クラスを追加すると、初期生徒として「nobody」が登録されます。<br />
+                    <span className="underline">クラスの名前に教科名をつける必要はありません。</span>
+                    </p>
                 </CardContent>
               </Card>
               {/* クラス一覧 */}

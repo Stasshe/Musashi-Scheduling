@@ -165,19 +165,20 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
             {!editMode && (
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-lg font-medium">
-                  先に、苗字を入力してください
+                  先に、名前を入力してください
                 </Label>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 font-semibold bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+                  <span className="text-yellow-700">※重要：</span>
                   すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
                   <br />
-                  必ず完全なフルネームで入力してください。登録名簿と完全一致する必要があります。
+                  <span className="text-red-600 font-bold">必ず完全なフルネームで入力してください。登録名簿と完全一致する必要があります。</span>
                   <br />
-                  例: 松下 → 松下彰忠
+                  <span className="text-gray-800">例: 松下 → 松下彰忠</span>
                 </p>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="苗字を入力"
+                  placeholder="フルネームを入力"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="text-lg"
@@ -226,7 +227,7 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
           <AlertDialogHeader>
             <AlertDialogTitle>登録が必要です</AlertDialogTitle>
             <AlertDialogDescription>
-              苗字を入力し、所属クラスを選択して「保存して始める」を押してください。
+              フルネームを入力し、所属クラスを選択して「保存して始める」を押してください。
               <br />
               登録が完了するまでこの画面は閉じられません。
             </AlertDialogDescription>

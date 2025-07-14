@@ -9,6 +9,11 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile.name || '');
 
+  // userProfile.nameが変化したらeditNameも同期
+  useEffect(() => {
+    setEditName(userProfile.name || '');
+  }, [userProfile.name]);
+
   // ローカルストレージ変更時に userProfile を更新
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {

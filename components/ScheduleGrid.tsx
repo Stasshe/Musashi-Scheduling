@@ -593,6 +593,7 @@ function EditScheduleModal({
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
                 step={300} // 5分刻み
+                list="data-list"
                 min="08:00"
                 max="23:00"
               />

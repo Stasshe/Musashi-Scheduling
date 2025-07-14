@@ -67,13 +67,15 @@ export default function StudentRoster() {
     if (newClassName.trim()) {
       const subjectRef = ref(database, `roster/${subject}`);
       const snapshot = await import('firebase/database').then(({ get }) => get(subjectRef));
+      // 生徒が最低1人必要な場合は'nobody'を追加
+      const initialStudents = ['nobody'];
       if (snapshot.exists()) {
         await update(subjectRef, {
-          [newClassName.trim()]: []
+          [newClassName.trim()]: initialStudents
         });
       } else {
         await set(subjectRef, {
-          [newClassName.trim()]: []
+          [newClassName.trim()]: initialStudents
         });
       }
       setNewClassName('');

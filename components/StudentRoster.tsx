@@ -10,6 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 const SUBJECTS = [
   { id: 'english', name: '英語' },
@@ -138,6 +149,9 @@ export default function StudentRoster() {
     toast({ title: '保存しました', description: `${className} クラスを削除しました。` });
   };
 
+  // 削除対象クラス管理
+  const [deleteTarget, setDeleteTarget] = useState<{ subject: string; className: string } | null>(null);
+
   if (error) {
     return <div className="text-red-500 p-4">エラー: {error}</div>;
   }
@@ -255,14 +269,36 @@ export default function StudentRoster() {
                                 >
                                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeClass(subject.id, className)}
-                                  className="text-red-600 hover:text-red-700 h-6 sm:h-8 w-6 sm:w-8 p-0"
-                                >
-                                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setDeleteTarget({ subject: subject.id, className })}
+                                      className="text-red-600 hover:text-red-700 h-6 sm:h-8 w-6 sm:w-8 p-0"
+                                    >
+                                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>クラスを削除しますか？</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        「{className}」クラスを本当に削除しますか？この操作は元に戻せません。
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel onClick={() => setDeleteTarget(null)}>キャンセル</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={async () => {
+                                          await removeClass(subject.id, className);
+                                          setDeleteTarget(null);
+                                        }}
+                                        disabled={isSaving}
+                                      >削除する</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </div>
                             </>
                           )}

@@ -115,7 +115,11 @@ export default function Header({ active }: { active: string }) {
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 onClick={() => {
-                  setUserProfile({ ...userProfile, name: editName });
+                  // ローカルストレージ全体をクリア
+                  if (typeof window !== 'undefined') {
+                    window.localStorage.clear();
+                  }
+                  setUserProfile({ name: editName, registeredClasses: [] });
                   setIsModalOpen(false);
                 }}
               >

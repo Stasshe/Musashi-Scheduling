@@ -9,11 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const TIME_SLOTS: string[] = [];
 for (let hour = 8; hour <= 22; hour++) {
-  for (let minute = 0; minute < 60; minute += 30) {
-    if (hour === 22 && minute > 30) break;
-    const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    TIME_SLOTS.push(timeString);
-  }
+  const timeString = `${hour.toString().padStart(2, '0')}:00`;
+  TIME_SLOTS.push(timeString);
 }
 
 interface ScheduleItem {
@@ -68,7 +65,7 @@ export default function ScheduleGrid() {
 
   const getTimeSlotPosition = (time: string) => {
     const index = TIME_SLOTS.indexOf(time);
-    return index * 40; // 各スロット40pxに縮小
+    return index * 40; // 各スロット40px
   };
 
   const getScheduleHeight = (startTime: string, endTime: string) => {
@@ -137,13 +134,13 @@ export default function ScheduleGrid() {
             <div className="flex flex-1 overflow-y-auto">
               {/* 時間軸 */}
               <div className="w-16 flex-shrink-0 border-r border-gray-200">
-                {TIME_SLOTS.map((time, index) => (
+                {TIME_SLOTS.map((time) => (
                   <div
                     key={time}
                     className="p-1 text-xs text-gray-600 border-b border-gray-100 flex items-center justify-center"
                     style={{ height: '40px' }}
                   >
-                    {index % 2 === 0 ? time : ''}
+                    {time}
                   </div>
                 ))}
               </div>

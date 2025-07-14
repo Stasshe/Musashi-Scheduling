@@ -32,8 +32,8 @@ export default function Header() {
             </nav>
           </div>
           <div className="flex items-center">
-            <span className="text-gray-700 font-medium">
-              {userProfile.name || 'ゲスト'}
+            <span className="text-gray-700 font-medium" suppressHydrationWarning>
+              {userProfile.name || ''}
             </span>
           </div>
         </div>

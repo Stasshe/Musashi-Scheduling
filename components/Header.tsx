@@ -63,12 +63,14 @@ export default function Header({ active }: { active: string }) {
             {/* activeに応じてアイコンボタン表示: スマホ（sm未満） */}
             <div className="sm:hidden">
               {active === 'root' ? (
-                <Link href="/register" className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="名簿管理">
-                  <RosterIcon size={24} />
+                <Link href="/register" className="flex flex-col items-center ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="名簿管理">
+                  <RosterIcon size={28} />
+                  <span className="text-xs mt-1 text-gray-700">名簿</span>
                 </Link>
               ) : active === 'register' ? (
-                <Link href="/" className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="スケジュール">
-                  <ScheduleIcon size={24} />
+                <Link href="/" className="flex flex-col items-center ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="スケジュール">
+                  <ScheduleIcon size={28} />
+                  <span className="text-xs mt-1 text-gray-700">ホーム</span>
                 </Link>
               ) : null}
             </div>

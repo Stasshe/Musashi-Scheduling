@@ -51,6 +51,19 @@ import { EditScheduleModal } from './EditNewSchedule';
  */
 
 export default function ScheduleGrid() {
+  // スケジュール削除処理
+  const handleDeleteSchedule = async (id: string) => {
+    if (!id) return;
+    if (!window.confirm('本当にこのスケジュールを削除しますか？')) return;
+    try {
+      const scheduleRef = ref(database, `schedule/${id}`);
+      await set(scheduleRef, null);
+      setShowEditModal(false);
+      setEditingSchedule(null);
+    } catch (error) {
+      console.error('スケジュールの削除に失敗しました:', error);
+    }
+  };
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
@@ -418,6 +431,7 @@ export default function ScheduleGrid() {
           getClassesForSubject={getClassesForSubject}
           onSave={handleSaveSchedule}
           onClose={closeEditModal}
+          onDelete={handleDeleteSchedule}
         />
       )}
     </>

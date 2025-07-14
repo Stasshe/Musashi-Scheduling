@@ -10,13 +10,15 @@ export function EditScheduleModal({
   subjects, 
   getClassesForSubject, 
   onSave, 
-  onClose 
+  onClose, 
+  onDelete
 }: {
   schedule: EditScheduleData;
   subjects: string[];
   getClassesForSubject: (subject: string) => string[];
   onSave: (schedule: EditScheduleData) => void;
   onClose: () => void;
+  onDelete?: (id: string) => void;
 }) {
   const [formData, setFormData] = useState<EditScheduleData>(schedule);
 
@@ -199,6 +201,15 @@ export function EditScheduleModal({
             >
               キャンセル
             </button>
+            {schedule.id && onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(schedule.id as string)}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                削除
+              </button>
+            )}
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

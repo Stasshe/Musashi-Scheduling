@@ -200,7 +200,7 @@ export default function StudentRoster() {
                       </Button>
                     </div>
                     <div className="flex flex-row flex-wrap gap-1 mt-1 justify-center">
-                      {["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ"].map((roman, idx) => (
+                      {["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "二次"].map((roman, idx) => (
                         <Button
                           key={roman}
                           size="sm"

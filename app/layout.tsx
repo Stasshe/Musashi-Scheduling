@@ -20,6 +20,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        {/* Apple Touch Icon も追加可能 */}
+        <link rel="apple-touch-icon" href="/favicon.png" />
+      </head>
       <body className={`${inter.className} ${notoSansJP.variable} font-sans`}>
         {children}
       </body>

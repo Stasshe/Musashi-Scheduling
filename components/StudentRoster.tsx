@@ -74,40 +74,53 @@ export default function StudentRoster() {
     }
   }, []);
 
+  // 全教科の全クラス名リスト
+  const allClassNames = Object.values(data).flatMap(subjectObj => Object.keys(subjectObj));
+
   // クラス追加
   const addClass = async (subject: string) => {
-    if (newClassName.trim()) {
-      setIsSaving(true);
-      const subjectRef = ref(database, `roster/${subject}`);
-      const snapshot = await import('firebase/database').then(({ get }) => get(subjectRef));
-      const initialStudents = ['nobody'];
-      if (snapshot.exists()) {
-        await update(subjectRef, {
-          [newClassName.trim()]: initialStudents
-        });
-      } else {
-        await set(subjectRef, {
-          [newClassName.trim()]: initialStudents
-        });
-      }
-      setNewClassName('');
-      setIsSaving(false);
-      toast({ title: '保存しました', description: `${newClassName} クラスを追加しました。` });
+    const trimmedName = newClassName.trim();
+    if (!trimmedName) return;
+    if (allClassNames.includes(trimmedName)) {
+      setError(`クラス名「${trimmedName}」は既に存在します。別の名前を入力してください。`);
+      return;
     }
+    setIsSaving(true);
+    const subjectRef = ref(database, `roster/${subject}`);
+    const snapshot = await import('firebase/database').then(({ get }) => get(subjectRef));
+    const initialStudents = ['nobody'];
+    if (snapshot.exists()) {
+      await update(subjectRef, {
+        [trimmedName]: initialStudents
+      });
+    } else {
+      await set(subjectRef, {
+        [trimmedName]: initialStudents
+      });
+    }
+    setNewClassName('');
+    setIsSaving(false);
+    setError(null);
+    toast({ title: '保存しました', description: `${trimmedName} クラスを追加しました。` });
   };
 
   // クラス名編集（名簿編集と一括保存）
   const saveClassEdit = async (subject: string, oldName: string, newName: string) => {
-    if (!newName.trim()) return;
+    const trimmedName = newName.trim();
+    if (!trimmedName) return;
+    // クラス名が変更された場合、重複チェック
+    if (trimmedName !== oldName && allClassNames.includes(trimmedName)) {
+      setError(`クラス名「${trimmedName}」は既に存在します。別の名前を入力してください。`);
+      return;
+    }
     setIsSaving(true);
     const subjectRef = ref(database, `roster/${subject}`);
-    // クラス名が変更された場合
-    if (newName !== oldName) {
+    if (trimmedName !== oldName) {
       await update(subjectRef, {
-        [newName.trim()]: editStudents
+        [trimmedName]: editStudents
       });
       await remove(ref(database, `roster/${subject}/${oldName}`));
-      toast({ title: '保存しました', description: `クラス名を ${newName} に変更しました。` });
+      toast({ title: '保存しました', description: `クラス名を ${trimmedName} に変更しました。` });
     } else {
       await set(ref(database, `roster/${subject}/${oldName}`), editStudents);
       toast({ title: '保存しました', description: `名簿を更新しました。` });
@@ -115,6 +128,7 @@ export default function StudentRoster() {
     setEditingClass(null);
     setEditStudents([]);
     setIsSaving(false);
+    setError(null);
   };
 
   // クラス削除
@@ -128,12 +142,14 @@ export default function StudentRoster() {
   // 削除対象クラス管理
   const [deleteTarget, setDeleteTarget] = useState<{ subject: string; className: string } | null>(null);
 
-  if (error) {
-    return <div className="text-red-500 p-4">エラー: {error}</div>;
-  }
+  // エラー表示（画面上部に表示）
+  // errorがある場合は画面上部に表示し、エラー解除は入力時や成功時に行う
 
   return (
     <div className="space-y-4 p-2 sm:p-4">
+      {error && (
+        <div className="text-red-500 p-2 mb-2 border border-red-300 bg-red-50 rounded">エラー: {error}</div>
+      )}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">生徒名簿管理</h1>
         <Tabs defaultValue="english" className="w-full">

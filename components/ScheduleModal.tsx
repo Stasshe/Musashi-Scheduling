@@ -37,8 +37,16 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose }) 
             </span>
           </div>
           <div className="flex items-center">
-            <span className="text-sm text-gray-900">
+            <span className="text-sm text-gray-900 flex-1 text-center">
               {selectedItem.column + 1}列目
+            </span>
+          </div>
+          <div className="flex items-center">
+            <span className="text-sm font-medium text-gray-600 w-16">
+              説明
+            </span>
+            <span className="text-sm text-gray-900">
+              {selectedItem.description || 'なし'}
             </span>
           </div>
         </div>

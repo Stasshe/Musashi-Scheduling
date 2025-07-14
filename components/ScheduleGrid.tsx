@@ -110,15 +110,25 @@ export default function ScheduleGrid() {
   const daysToShow = isMobile ? 1 : 4;
   const dates = Array.from({ length: daysToShow }, (_, i) => addDays(currentDate, dateOffset + i));
 
+  // 時刻文字列（例: "08:30"）を分単位でグリッド位置・高さ計算
+  const GRID_START = 8 * 60; // 8:00（分）
+  const GRID_END = 23 * 60; // 23:00（分）
+  const GRID_HEIGHT_PER_MIN = 40 / 60; // 1時間=40px, 1分=0.666...px
+
+  const parseTimeToMinutes = (time: string) => {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  };
+
   const getTimeSlotPosition = (time: string) => {
-    const index = TIME_SLOTS.indexOf(time);
-    return index * 40; // 各スロット40px
+    const min = parseTimeToMinutes(time);
+    return (min - GRID_START) * GRID_HEIGHT_PER_MIN;
   };
 
   const getScheduleHeight = (startTime: string, endTime: string) => {
-    const startIndex = TIME_SLOTS.indexOf(startTime);
-    const endIndex = TIME_SLOTS.indexOf(endTime);
-    return (endIndex - startIndex) * 40;
+    const startMin = parseTimeToMinutes(startTime);
+    const endMin = parseTimeToMinutes(endTime);
+    return (endMin - startMin) * GRID_HEIGHT_PER_MIN;
   };
 
   const getScheduleForDate = (date: Date, column: number) => {
@@ -560,32 +570,32 @@ function EditScheduleModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 開始時刻
               </label>
-              <select
+              <input
+                type="time"
                 value={formData.startTime}
-                onChange={(e) => handleStartTimeChange(e.target.value)}
+                onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-              >
-                {TIME_SLOTS.map(time => (
-                  <option key={time} value={time}>{time}</option>
-                ))}
-              </select>
+                step={300} // 5分刻み
+                min="08:00"
+                max="23:00"
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 終了時刻
               </label>
-              <select
+              <input
+                type="time"
                 value={formData.endTime}
-                onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-              >
-                {TIME_SLOTS.map(time => (
-                  <option key={time} value={time}>{time}</option>
-                ))}
-              </select>
+                step={900} // 15分刻み
+                min="08:00"
+                max="23:00"
+              />
             </div>
           </div>
 

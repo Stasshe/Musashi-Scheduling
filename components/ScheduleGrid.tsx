@@ -52,17 +52,32 @@ import { EditScheduleModal } from './EditNewSchedule';
 
 export default function ScheduleGrid() {
   // スケジュール削除処理
-  const handleDeleteSchedule = async (id: string) => {
-    if (!id) return;
-    if (!window.confirm('本当にこのスケジュールを削除しますか？')) return;
+  // 削除ダイアログ状態
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDeleteSchedule = (id: string) => {
+    setDeleteTargetId(id);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteSchedule = async () => {
+    if (!deleteTargetId) return;
     try {
-      const scheduleRef = ref(database, `schedule/${id}`);
+      const scheduleRef = ref(database, `schedule/${deleteTargetId}`);
       await set(scheduleRef, null);
       setShowEditModal(false);
       setEditingSchedule(null);
+      setShowDeleteDialog(false);
+      setDeleteTargetId(null);
     } catch (error) {
       console.error('スケジュールの削除に失敗しました:', error);
     }
+  };
+
+  const cancelDeleteSchedule = () => {
+    setShowDeleteDialog(false);
+    setDeleteTargetId(null);
   };
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
@@ -433,6 +448,21 @@ export default function ScheduleGrid() {
           onClose={closeEditModal}
           onDelete={handleDeleteSchedule}
         />
+      )}
+
+      {/* 削除確認ダイアログ */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={cancelDeleteSchedule}></div>
+          <div className="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-sm z-10">
+            <div className="text-lg font-semibold mb-2">スケジュール削除</div>
+            <div className="text-sm text-gray-700 mb-4">本当にこのスケジュールを削除しますか？</div>
+            <div className="flex justify-end gap-2">
+              <button className="px-4 py-2 rounded border bg-gray-100 hover:bg-gray-200" onClick={cancelDeleteSchedule}>キャンセル</button>
+              <button className="px-4 py-2 rounded border bg-red-500 text-white hover:bg-red-600" onClick={confirmDeleteSchedule}>削除する</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

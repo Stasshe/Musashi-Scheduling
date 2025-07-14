@@ -17,12 +17,17 @@ import { SUBJECTS } from '@/config/constants'; // SUBJECTSを定義したファ�
 interface InitialSetupModalProps {
   isOpen: boolean;
   onClose: () => void;
+  name?: string;
+  setName?: (name: string) => void;
+  registeredClasses?: string[];
+  setRegisteredClasses?: (classes: string[]) => void;
+  editMode?: boolean; // registerページ用
 }
 
-export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModalProps) {
-  const [name, setName] = useState('');
-  const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
-  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+export default function InitialSetupModal({ isOpen, onClose, name: propName, setName: propSetName, registeredClasses, setRegisteredClasses, editMode }: InitialSetupModalProps) {
+  // editMode=trueならpropsからname/registeredClassesを使う
+  const [name, setName] = editMode ? [propName ?? '', propSetName ?? (() => {})] : useState('');
+  const [selectedClasses, setSelectedClasses] = useState<string[]>(registeredClasses ?? []);
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
 
   // Firebaseからrosterデータ取得
@@ -51,8 +56,10 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
 
   // userProfile.registeredClassesが変化したらselectedClassesも更新
   useEffect(() => {
-    setSelectedClasses(userProfile?.registeredClasses || []);
-  }, [userProfile?.registeredClasses]);
+    if (editMode && registeredClasses) {
+      setSelectedClasses(registeredClasses);
+    }
+  }, [registeredClasses, editMode]);
 
   const handleClassToggle = (className: string) => {
     setSelectedClasses(prev => {
@@ -64,7 +71,7 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
       }
 
       // rosterデータとnameが揃っている場合のみfirebaseへ反映
-      if (name.trim()) {
+      if (name && name.trim()) {
         // どのsubjectか特定
         let subjectId: string | null = null;
         Object.entries(roster).forEach(([subId, classes]) => {
@@ -90,17 +97,22 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
           });
         }
       }
+      // editMode時はlocalStorageも更新
+      if (editMode && setRegisteredClasses) {
+        setRegisteredClasses(updated);
+      }
       return updated;
     });
   };
 
   const handleSave = () => {
-    if (name.trim()) {
-      setUserProfile({
-        id: userProfile?.id || '',
-        name: name.trim(),
-        registeredClasses: selectedClasses
-      });
+    if (name && name.trim()) {
+      if (editMode && propSetName) {
+        propSetName(name.trim());
+      }
+      if (editMode && setRegisteredClasses) {
+        setRegisteredClasses(selectedClasses);
+      }
       onClose();
     }
   };
@@ -110,32 +122,33 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            「武蔵」スケジューリングシステムへようこそ
+            {editMode ? '所属クラスの編集' : '「武蔵」スケジューリングシステムへようこそ'}
           </DialogTitle>
         </DialogHeader>
-        
         <div className="space-y-6 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-lg font-medium">
-              先に、苗字を入力してください
-            </Label>
-            <p className="text-sm text-gray-600">
-              すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
-              <br />
-              例: 苗字が同じ人がいる場合は名前を1文字追加してください。
-              <br />
-              例: 松下 → 松下彰
-            </p>
-            <Input
-              id="name"
-              type="text"
-              placeholder="苗字を入力"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="text-lg"
-            />
-          </div>
-
+          {/* 名前入力欄は初期セットアップ時のみ表示 */}
+          {!editMode && (
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-lg font-medium">
+                先に、苗字を入力してください
+              </Label>
+              <p className="text-sm text-gray-600">
+                すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
+                <br />
+                例: 苗字が同じ人がいる場合は名前を1文字追加してください。
+                <br />
+                例: 松下 → 松下彰
+              </p>
+              <Input
+                id="name"
+                type="text"
+                placeholder="苗字を入力"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+          )}
           <div className="space-y-4">
             <Label className="text-lg font-medium">
               所属クラスを選択してください（複数選択可）
@@ -160,14 +173,13 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
               </div>
             ))}
           </div>
-
           <div className="flex justify-end space-x-3">
             <Button 
               onClick={handleSave} 
-              disabled={!name.trim()}
+              disabled={!name || !name.trim()}
               className="px-8 py-2"
             >
-              保存して始める
+              {editMode ? '保存' : '保存して始める'}
             </Button>
           </div>
         </div>

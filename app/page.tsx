@@ -24,6 +24,12 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* 上半分：スケジュール */}
+          <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded mb-4">
+            <p className="text-sm text-gray-800 font-semibold">
+              このサイトは、<span className="underline">スケジュールがクラウドで管理されます</span>。皆がスケジュールを直接編集することで、初めて成り立ちます。<br />
+              <span className="text-yellow-700 font-bold">気づいた人からスケジュール追加・編集を誠によろしくお願いします。</span>
+            </p>
+          </div>
           <ScheduleGrid />
           
           {/* 下半分：今後の機能用スペース */}

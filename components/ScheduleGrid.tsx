@@ -88,6 +88,8 @@ export default function ScheduleGrid() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<EditScheduleData | null>(null);
+  // 自分のクラスだけ表示トグル
+  const [showOnlyMyClass, setShowOnlyMyClass] = useState(false);
 
   // useLocalStorageでuserProfile取得
   const [userProfile] = useLocalStorage<any>('userProfile', { name: '' });
@@ -150,13 +152,19 @@ export default function ScheduleGrid() {
   };
 
   const getScheduleForDate = (date: Date, column: number) => {
-    return schedule.filter(item => {
-      // 日付フィールドがある場合はそれを使用、なければ今日として扱う
+    let filtered = schedule.filter(item => {
       if (item.date) {
         return new Date(item.date).toDateString() === date.toDateString() && item.column === column;
       }
       return isToday(date) && item.column === column;
     });
+    if (showOnlyMyClass && selectedStudentName) {
+      filtered = filtered.filter(item => {
+        const students = Array.isArray(roster[item.subject]?.[item.className]) ? roster[item.subject][item.className] : [];
+        return students.includes(selectedStudentName);
+      });
+    }
+    return filtered;
   };
 
   const truncateTitle = (title: string, maxLength: number = 8) => {
@@ -279,7 +287,22 @@ export default function ScheduleGrid() {
     <>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-screen flex flex-col">
         <div className="p-2 sm:p-4 border-b border-gray-200 flex-shrink-0 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base sm:text-xl font-bold text-gray-900 whitespace-nowrap">授業スケジュール</h2>
+          <div className="flex items-center gap-2">
+            {/* スマホ以外はタイトル表示 */}
+            {!isMobile && (
+              <h2 className="text-base sm:text-xl font-bold text-gray-900 whitespace-nowrap">授業スケジュール</h2>
+            )}
+            {/* 「自分のクラスだけ表示」トグル */}
+            <label className="flex items-center gap-1 cursor-pointer select-none text-xs sm:text-sm font-semibold">
+              <input
+                type="checkbox"
+                checked={showOnlyMyClass}
+                onChange={e => setShowOnlyMyClass(e.target.checked)}
+                className="accent-blue-500"
+              />
+              自分のクラスだけ表示
+            </label>
+          </div>
           <div className="flex flex-wrap gap-1 sm:gap-2 items-center">
             {/* 強調テキスト（編集モード時は非表示） */}
             {!isEditMode && (

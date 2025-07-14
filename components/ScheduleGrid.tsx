@@ -592,7 +592,7 @@ function EditScheduleModal({
                 onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-                step={900} // 15分刻み
+                step={300} // 5分刻み
                 min="08:00"
                 max="23:00"
               />

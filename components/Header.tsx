@@ -6,9 +6,10 @@ import { useState, useEffect } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import ScheduleIcon from './ui/schedule';
 import RosterIcon from './ui/roster';
+import { UserProfile } from '@/types/';
 
 export default function Header({ active }: { active: string }) {
-  const [userProfile, setUserProfile] = useLocalStorage<{ name: string; registeredClasses: any[] } | undefined>('userProfile', undefined);
+  const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile && userProfile.name ? userProfile.name : '');
   
@@ -78,7 +79,7 @@ export default function Header({ active }: { active: string }) {
           {/* 右側: ユーザー情報とアクション */}
           <div className="flex items-center space-x-2">
             <span className="text-gray-700 font-medium max-w-[100px] truncate" suppressHydrationWarning>
-              {userProfile && userProfile.name ? userProfile.name : ''}
+              {userProfile.name ? userProfile.name : '...'}
             </span>
             <button
               className="ml-1 p-2 text-gray-600 hover:bg-gray-100 rounded"
@@ -119,7 +120,7 @@ export default function Header({ active }: { active: string }) {
                   if (typeof window !== 'undefined') {
                     window.localStorage.clear();
                   }
-                  setUserProfile({ name: editName, registeredClasses: [] });
+                  setUserProfile({id: '', name: editName, registeredClasses: [] });
                   setIsModalOpen(false);
                 }}
               >

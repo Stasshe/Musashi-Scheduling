@@ -117,12 +117,19 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
         <div className="space-y-6 py-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-lg font-medium">
-              お名前を入力してください
+              先に、苗字を入力してください
             </Label>
+            <p className="text-sm text-gray-600">
+              すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
+              <br />
+              例: 苗字が同じ人がいる場合は名前を1文字追加してください。
+              <br />
+              例: 松下 → 松下彰
+            </p>
             <Input
               id="name"
               type="text"
-              placeholder="山田太郎"
+              placeholder="石田"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="text-lg"

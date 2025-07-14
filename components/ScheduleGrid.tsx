@@ -325,12 +325,9 @@ export default function ScheduleGrid() {
                           />
                         ))}
                         {/* 授業アイテム */}
-                        {getScheduleForDate(date, columnIndex).map(item => {
-                          // 参加判定: roster[subject][className]にselectedStudentNameが含まれているか
-                          const isMyClass =
-                            item.subject &&
-                            item.className &&
-                            roster[item.subject]?.[item.className]?.includes(selectedStudentName);
+                        {(getScheduleForDate(date, columnIndex) ?? []).map(item => {
+                          const students = Array.isArray(roster[item.subject]?.[item.className]) ? roster[item.subject][item.className] : [];
+                          const isMyClass = selectedStudentName && students.includes(selectedStudentName);
                           return (
                             <div
                               key={item.id}

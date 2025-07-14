@@ -32,14 +32,6 @@ export default function Home() {
             </p>
           </div>
           <ScheduleGrid />
-          
-          {/* 下半分：今後の機能用スペース */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            <div className="text-center text-gray-500">
-              <h2 className="text-xl font-medium mb-2">今後の機能</h2>
-              <p>こちらには今後、お知らせや個人向け情報などが表示される予定です。</p>
-            </div>
-          </div>
         </div>
       </main>
 

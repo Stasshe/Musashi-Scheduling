@@ -133,7 +133,7 @@ export default function ScheduleGrid() {
   // 時刻文字列（例: "08:30"）を分単位でグリッド位置・高さ計算
   const GRID_START = 8 * 60; // 8:00（分）
   const GRID_END = 23 * 60; // 23:00（分）
-  const GRID_HEIGHT_PER_MIN = 40 / 60; // 1時間=40px, 1分=0.666...px
+  const GRID_HEIGHT_PER_MIN = 38 / 60; // 1時間=38px, 1分=0.633...px
 
   const parseTimeToMinutes = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -373,14 +373,14 @@ export default function ScheduleGrid() {
               ))}
             </div>
             {/* タイムグリッド */}
-            <div className="flex flex-1 overflow-y-auto">
+            <div className="flex flex-1 overflow-y-hidden">
               {/* 時間軸 */}
               <div className="w-16 flex-shrink-0 border-r border-gray-200">
                 {TIME_SLOTS.map((time) => (
                   <div
                     key={time}
                     className="p-1 text-xs text-gray-600 border-b border-gray-100 flex items-center justify-center"
-                    style={{ height: '40px' }}
+                    style={{ height: '38px' }}
                   >
                     {time}
                   </div>
@@ -395,7 +395,7 @@ export default function ScheduleGrid() {
                       <div 
                         key={columnIndex} 
                         className="flex-1 relative border-r border-gray-100"
-                        style={{ height: `${TIME_SLOTS.length * 40}px` }}
+                        style={{ height: `${TIME_SLOTS.length * 38}px` }}
                       >
                         {/* 時間スロットの背景グリッド */}
                         {TIME_SLOTS.map((timeSlot, timeIndex) => (
@@ -405,8 +405,8 @@ export default function ScheduleGrid() {
                               isEditMode ? 'hover:bg-gray-50 cursor-pointer' : ''
                             }`}
                             style={{
-                              top: `${timeIndex * 40}px`,
-                              height: '40px'
+                              top: `${timeIndex * 38}px`,
+                              height: '38px'
                             }}
                             onClick={() => handleGridClick(date, columnIndex, timeSlot)}
                           />

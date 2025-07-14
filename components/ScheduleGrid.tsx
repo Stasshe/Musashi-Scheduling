@@ -1,5 +1,27 @@
 "use client";
 
+
+// 教科ID→日本語名変換
+const SUBJECT_ID_TO_NAME: Record<string, string> = {
+  english: '英語',
+  japanese: '国語',
+  math: '数学',
+  science: '理科',
+  social: '社会',
+  other: 'その他'
+};
+
+// 教科ID→略称変換
+const SUBJECT_ID_TO_SHORT: Record<string, string> = {
+  english: '英',
+  japanese: '国',
+  math: '数',
+  science: '理',
+  social: '社',
+  other: '他'
+};
+
+
 import { useState, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import ScheduleModal from './ScheduleModal';
@@ -326,22 +348,33 @@ export default function ScheduleGrid() {
                         ))}
                         {/* 授業アイテム */}
                         {(getScheduleForDate(date, columnIndex) ?? []).map(item => {
+                          // subjectはID（english等）か日本語名（英語等）どちらも来る可能性がある
+                          const subjectId = SUBJECT_ID_TO_NAME[item.subject] ? item.subject : Object.keys(SUBJECT_ID_TO_NAME).find(key => SUBJECT_ID_TO_NAME[key] === item.subject) || 'other';
+                          const subjectName = SUBJECT_ID_TO_NAME[subjectId] || 'その他';
+                          const subjectShort = SUBJECT_ID_TO_SHORT[subjectId] || '他';
                           const students = Array.isArray(roster[item.subject]?.[item.className]) ? roster[item.subject][item.className] : [];
                           const isMyClass = selectedStudentName && students.includes(selectedStudentName);
+                          const colorClass = SUBJECT_COLORS[subjectName as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS['その他'];
                           return (
                             <div
                               key={item.id}
-                              className={`absolute left-0.5 right-0.5 rounded-sm border p-1 shadow-sm cursor-pointer hover:opacity-80 ${
-                                SUBJECT_COLORS[item.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS['その他']
-                              }${isMyClass ? ' ring-2 ring-blue-400' : ''}`}
+                              className={`absolute left-0.5 right-0.5 rounded-sm border shadow-sm cursor-pointer hover:opacity-80 ${colorClass}${isMyClass ? ' ring-2 ring-blue-400' : ''}`}
                               style={{
                                 top: `${getTimeSlotPosition(item.startTime)}px`,
-                                height: `${getScheduleHeight(item.startTime, item.endTime)}px`
+                                height: `${getScheduleHeight(item.startTime, item.endTime)}px`,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: '4px'
                               }}
                               onClick={() => handleItemClick(item)}
                             >
+                              <div className="font-bold text-xs mb-0.5">
+                                {subjectShort}
+                              </div>
                               <div className="font-medium text-xs leading-tight">
-                                {truncateTitle(item.className ?? item.subject)}
+                                {truncateTitle(item.className ?? subjectName)}
                               </div>
                               {isEditMode && (
                                 <div className="absolute top-0 right-0 w-2 h-2 bg-orange-400 rounded-full"></div>

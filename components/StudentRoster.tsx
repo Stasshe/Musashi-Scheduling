@@ -33,6 +33,7 @@ export default function StudentRoster() {
   const [newStudentName, setNewStudentName] = useState('');
   const [newClassName, setNewClassName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 編集対象クラスが切り替わったら生徒リストをセット
   useEffect(() => {
@@ -47,11 +48,19 @@ export default function StudentRoster() {
   // Firebaseからデータ取得
   useEffect(() => {
     const rosterRef = ref(database, 'roster');
-    const unsubscribe = onValue(rosterRef, (snapshot) => {
-      const val = snapshot.val() || {};
-      setData(val);
-    });
-    return () => unsubscribe();
+    try {
+      const unsubscribe = onValue(rosterRef, (snapshot) => {
+        const val = snapshot.val() || {};
+        setData(val);
+      }, (err) => {
+        setError('データ取得エラー: ' + err.message);
+        console.error('Firebase roster error:', err);
+      });
+      return () => unsubscribe();
+    } catch (e: any) {
+      setError('初期化エラー: ' + (e.message || '不明なエラー'));
+      console.error('StudentRoster useEffect error:', e);
+    }
   }, []);
 
   // 生徒追加
@@ -129,11 +138,14 @@ export default function StudentRoster() {
     toast({ title: '保存しました', description: `${className} クラスを削除しました。` });
   };
 
+  if (error) {
+    return <div className="text-red-500 p-4">エラー: {error}</div>;
+  }
+
   return (
     <div className="space-y-4 p-2 sm:p-4">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">生徒名簿管理</h1>
-        
         <Tabs defaultValue="english" className="w-full">
           <TabsList className="grid w-full grid-cols-6 h-8 sm:h-10">
             {SUBJECTS.map(subject => (
@@ -142,7 +154,6 @@ export default function StudentRoster() {
               </TabsTrigger>
             ))}
           </TabsList>
-
           {SUBJECTS.map(subject => (
             <TabsContent key={subject.id} value={subject.id} className="space-y-3 sm:space-y-4">
               {/* 新しいクラス追加 */}
@@ -167,10 +178,10 @@ export default function StudentRoster() {
                   </div>
                 </CardContent>
               </Card>
-
               {/* クラス一覧 */}
               <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {Object.entries(data[subject.id as keyof typeof data] || {}).map(([className, students]) => {
+                  const safeStudents = Array.isArray(students) ? students : [];
                   const isEditing = editingClass?.subject === subject.id && editingClass?.className === className;
                   const editClassNameValue = isEditing ? editingClass.newClassName : className;
                   return (
@@ -238,7 +249,7 @@ export default function StudentRoster() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="text-xs h-5 px-2">
-                            {students.length}名
+                            {safeStudents.length}名
                           </Badge>
                           {isEditing && (
                             <Badge variant="outline" className="text-blue-600 border-blue-400 text-xs h-5 px-2">編集中</Badge>
@@ -248,7 +259,7 @@ export default function StudentRoster() {
                       <CardContent className="space-y-2 p-2 sm:p-3 pt-0">
                         {/* 生徒リスト */}
                         <div className="space-y-1">
-                          {(isEditing ? editStudents : students).map((student, index) => (
+                          {(isEditing ? editStudents : safeStudents).map((student, index) => (
                             <div key={index} className="flex items-center justify-between p-1 sm:p-2 bg-gray-50 rounded text-xs sm:text-sm">
                               <span className="truncate pr-2">{student}</span>
                               {isEditing && (
@@ -264,7 +275,6 @@ export default function StudentRoster() {
                             </div>
                           ))}
                         </div>
-
                         {/* 生徒追加 */}
                         {isEditing && (
                           <div className="space-y-2">

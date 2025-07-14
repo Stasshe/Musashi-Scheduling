@@ -24,6 +24,17 @@ export interface Schedule {
   description?: string; // オプションの説明フィールド
 }
 
+export interface EditScheduleData {
+  id?: string;
+  subject: string;
+  className: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  column: number;
+  description?: string;
+}
+
 export interface Subject {
   id: string;
   name: string;

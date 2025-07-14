@@ -142,13 +142,29 @@ export default function StudentRoster() {
   // 削除対象クラス管理
   const [deleteTarget, setDeleteTarget] = useState<{ subject: string; className: string } | null>(null);
 
-  // エラー表示（画面上部に表示）
-  // errorがある場合は画面上部に表示し、エラー解除は入力時や成功時に行う
+  // エラー自動消去タイマー
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
+  // エラー表示（画面上部に×ボタン付きで表示）
   return (
     <div className="space-y-4 p-2 sm:p-4">
       {error && (
-        <div className="text-red-500 p-2 mb-2 border border-red-300 bg-red-50 rounded">エラー: {error}</div>
+        <div className="relative text-red-500 p-2 mb-2 border border-red-300 bg-red-50 rounded flex items-center">
+          <span className="flex-1">エラー: {error}</span>
+          <button
+            className="ml-2 text-red-400 hover:text-red-600 font-bold text-lg px-2 py-0 rounded focus:outline-none"
+            onClick={() => setError(null)}
+            aria-label="エラーを閉じる"
+            type="button"
+          >×</button>
+        </div>
       )}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">生徒名簿管理</h1>

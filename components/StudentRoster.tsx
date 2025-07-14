@@ -278,7 +278,7 @@ export default function StudentRoster() {
                       </CardHeader>
                       <CardContent className="space-y-2 p-2 sm:p-3 pt-0">
                         {/* 生徒リスト */}
-                        <div className="space-y-1">
+                        <div className="grid grid-cols-2 gap-1">
                           {(isEditing ? editStudents : safeStudents).map((student, index) => (
                             <div key={index} className="flex items-center justify-between p-1 sm:p-2 bg-gray-50 rounded text-xs sm:text-sm">
                               <span className="truncate pr-2">{student}</span>

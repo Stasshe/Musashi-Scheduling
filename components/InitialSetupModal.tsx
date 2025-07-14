@@ -40,9 +40,8 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
   };
   const [selectedClasses, setSelectedClasses] = useState<string[]>(registeredClasses ?? []);
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
-  // 新規登録時用のローカルストレージsetter
-  const [localName, setLocalName] = useLocalStorage<string>('name', '');
-  const [localClasses, setLocalClasses] = useLocalStorage<string[]>('registeredClasses', []);
+  // 新規登録時用のローカルストレージsetter（userProfileとして保存）
+  const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
 
   // Firebaseからrosterデータ取得
   useEffect(() => {
@@ -127,12 +126,15 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
       if (editMode && setRegisteredClasses) {
         setRegisteredClasses(selectedClasses);
       }
-      // ローカルストレージに保存
-      setLocalName(name.trim());
-      setLocalClasses(selectedClasses);
+      // userProfileとしてローカルストレージに保存
+      setUserProfile({
+        ...userProfile,
+        name: name.trim(),
+        registeredClasses: selectedClasses
+      });
       onClose();
     }
-  };
+  }
 
   // バツボタンで閉じようとした時の警告表示用
   const [showAlert, setShowAlert] = useState(false);

@@ -8,21 +8,21 @@ import ScheduleIcon from './ui/schedule';
 import RosterIcon from './ui/roster';
 
 export default function Header({ active }: { active: string }) {
-  const [userProfile, setUserProfile] = useLocalStorage('userProfile', { name: '', registeredClasses: [] });
+  const [userProfile, setUserProfile] = useLocalStorage<{ name: string; registeredClasses: any[] } | undefined>('userProfile', undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editName, setEditName] = useState(userProfile.name || '');
+  const [editName, setEditName] = useState(userProfile && userProfile.name ? userProfile.name : '');
   
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {
-    setEditName(userProfile.name || '');
-  }, [userProfile.name]);
+    setEditName(userProfile && userProfile.name ? userProfile.name : '');
+  }, [userProfile]);
 
   // ローカルストレージ変更時に userProfile を更新
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
       if (event.key === 'userProfile') {
         try {
-          const newProfile = event.newValue ? JSON.parse(event.newValue) : { name: '', registeredClasses: [] };
+          const newProfile = event.newValue ? JSON.parse(event.newValue) : undefined;
           setUserProfile(newProfile);
         } catch {}
       }
@@ -78,12 +78,12 @@ export default function Header({ active }: { active: string }) {
           {/* 右側: ユーザー情報とアクション */}
           <div className="flex items-center space-x-2">
             <span className="text-gray-700 font-medium max-w-[100px] truncate" suppressHydrationWarning>
-              {userProfile.name || ''}
+              {userProfile && userProfile.name ? userProfile.name : ''}
             </span>
             <button
               className="ml-1 p-2 text-gray-600 hover:bg-gray-100 rounded"
               onClick={() => {
-                setEditName(userProfile.name || '');
+                setEditName(userProfile && userProfile.name ? userProfile.name : '');
                 setIsModalOpen(true);
               }}
               aria-label="名前編集"

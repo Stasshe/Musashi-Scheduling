@@ -46,7 +46,9 @@ export default function StudentRoster() {
   // 生徒追加
   const addStudent = async (subject: string, className: string) => {
     if (newStudentName.trim()) {
-      const students = data[subject]?.[className] || [];
+      let students = data[subject]?.[className] || [];
+      // 'nobody'がいる場合は除去
+      students = students.filter(name => name !== 'nobody');
       const newList = [...students, newStudentName.trim()];
       await set(ref(database, `roster/${subject}/${className}`), newList);
       setNewStudentName('');

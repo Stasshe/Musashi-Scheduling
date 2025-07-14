@@ -154,35 +154,35 @@ export default function StudentRoster() {
 
   // エラー表示（画面上部に×ボタン付きで表示）
   return (
-    <div className="space-y-4 p-2 sm:p-4">
+    <div className="space-y-2 p-1 sm:p-2">
       {error && (
-        <div className="relative text-red-500 p-2 mb-2 border border-red-300 bg-red-50 rounded flex items-center">
-          <span className="flex-1">エラー: {error}</span>
+        <div className="relative text-red-500 p-2 mb-1 border border-red-300 bg-red-50 rounded flex items-center">
+          <span className="flex-1 text-xs sm:text-sm">エラー: {error}</span>
           <button
-            className="ml-2 text-red-400 hover:text-red-600 font-bold text-lg px-2 py-0 rounded focus:outline-none"
+            className="ml-2 text-red-400 hover:text-red-600 font-bold text-sm px-1 py-0 rounded focus:outline-none"
             onClick={() => setError(null)}
             aria-label="エラーを閉じる"
             type="button"
           >×</button>
         </div>
       )}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">生徒名簿管理</h1>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 sm:p-2">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">生徒名簿管理</h1>
         <Tabs defaultValue="english" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 h-8 sm:h-10">
+          <TabsList className="grid w-full grid-cols-6 h-7 sm:h-8">
             {SUBJECTS.map(subject => (
-              <TabsTrigger key={subject.id} value={subject.id} className="text-xs sm:text-sm px-1 sm:px-3">
+              <TabsTrigger key={subject.id} value={subject.id} className="text-xs px-1">
                 {subject.name}
               </TabsTrigger>
             ))}
           </TabsList>
           {SUBJECTS.map(subject => (
-            <TabsContent key={subject.id} value={subject.id} className="space-y-3 sm:space-y-4">
+            <TabsContent key={subject.id} value={subject.id} className="space-y-2 sm:space-y-3">
               {/* 新しいクラス追加 */}
               <Card>
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="flex flex-row gap-2 w-full">
+                <CardContent className="p-2">
+                  <div className="flex flex-col gap-1 w-full">
+                    <div className="flex flex-row gap-1 w-full">
                       <Input
                         placeholder={`新しい${subject.name}クラス名 例: 二次対策Ⅱ`}
                         value={newClassName}
@@ -192,20 +192,20 @@ export default function StudentRoster() {
                             addClass(subject.id);
                           }
                         }}
-                        className="text-xs sm:text-sm h-8 sm:h-10 flex-1 min-w-0"
+                        className="text-xs h-6 sm:h-7 flex-1 min-w-0"
                       />
-                      <Button onClick={() => addClass(subject.id)} size="sm" className="h-8 sm:h-10 text-xs sm:text-sm px-2 sm:px-3 whitespace-nowrap">
-                        <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <Button onClick={() => addClass(subject.id)} size="sm" className="h-6 sm:h-7 text-xs px-2 whitespace-nowrap">
+                        <Plus className="w-3 h-3 mr-1" />
                         追加
                       </Button>
                     </div>
-                    <div className="flex flex-row flex-wrap gap-1 mt-1 justify-center">
+                    <div className="flex flex-row flex-wrap gap-1 justify-center">
                       {["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "二次"].map((roman, idx) => (
                         <Button
                           key={roman}
                           size="sm"
                           variant="outline"
-                          className="h-7 sm:h-8 px-2 text-xs"
+                          className="h-5 sm:h-6 px-1 text-xs"
                           onClick={() => setNewClassName(newClassName + roman)}
                           type="button"
                         >
@@ -214,14 +214,14 @@ export default function StudentRoster() {
                       ))}
                     </div>
                   </div>
-                    <p className="text-xs sm:text-sm font-semibold mt-2">
+                  <p className="text-xs font-semibold mt-1">
                     クラスを追加すると、初期生徒として「nobody」が登録されます。<br />
                     <span className="underline">クラスの名前に教科名をつける必要はありません。</span>
-                    </p>
+                  </p>
                 </CardContent>
               </Card>
               {/* クラス一覧 */}
-              <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid gap-1 sm:gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {Object.entries(data[subject.id as keyof typeof data] || {}).map(([className, students]) => {
                   const safeStudents = Array.isArray(students) ? students : [];
                   // nobodyを除外したリスト
@@ -231,15 +231,15 @@ export default function StudentRoster() {
                   // 編集時はeditStudentsからnobodyを除外
                   const editingDisplayStudents = editStudents.filter(s => s !== 'nobody');
                   return (
-                    <Card key={className} className={isEditing ? 'border-2 border-blue-500 bg-blue-50' : ''}>
-                      <CardHeader className="pb-2 p-2 sm:p-3">
+                    <Card key={className} className={`${isEditing ? 'border-2 border-blue-500 bg-blue-50' : ''} min-h-0`}>
+                      <CardHeader className="pb-1 p-1 sm:p-2">
                         <div className="flex items-center justify-between">
                           {isEditing ? (
                             <div className="flex items-center space-x-1 flex-1">
                               <Input
                                 value={editClassNameValue}
                                 onChange={(e) => setEditingClass(editingClass ? { ...editingClass, newClassName: e.target.value } : null)}
-                                className="text-xs sm:text-sm h-6 sm:h-8 px-2"
+                                className="text-xs h-5 sm:h-6 px-1"
                                 onKeyPress={(e) => {
                                   if (e.key === 'Enter') {
                                     saveClassEdit(subject.id, className, editClassNameValue);
@@ -254,32 +254,32 @@ export default function StudentRoster() {
                               <Button
                                 size="sm"
                                 onClick={() => saveClassEdit(subject.id, className, editClassNameValue)}
-                                className="h-6 sm:h-8 w-6 sm:w-8 p-0"
+                                className="h-5 sm:h-6 w-5 sm:w-6 p-0"
                                 disabled={isSaving}
                               >
-                                <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Save className="w-3 h-3" />
                               </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => { setEditingClass(null); setEditStudents([]); }}
-                                className="h-6 sm:h-8 w-6 sm:w-8 p-0"
+                                className="h-5 sm:h-6 w-5 sm:w-6 p-0"
                                 disabled={isSaving}
                               >
-                                <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <X className="w-3 h-3" />
                               </Button>
                             </div>
                           ) : (
                             <>
-                              <CardTitle className="text-sm sm:text-base truncate pr-2">{className}</CardTitle>
+                              <CardTitle className="text-xs sm:text-sm truncate pr-1 leading-tight">{className}</CardTitle>
                               <div className="flex space-x-1 flex-shrink-0">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => setEditingClass({ subject: subject.id, className, newClassName: className })}
-                                  className="h-6 sm:h-8 w-6 sm:w-8 p-0"
+                                  className="h-5 sm:h-6 w-5 sm:w-6 p-0"
                                 >
-                                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                                  <Edit className="w-3 h-3" />
                                 </Button>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
@@ -287,9 +287,9 @@ export default function StudentRoster() {
                                       variant="ghost"
                                       size="sm"
                                       onClick={() => setDeleteTarget({ subject: subject.id, className })}
-                                      className="text-red-600 hover:text-red-700 h-6 sm:h-8 w-6 sm:w-8 p-0"
+                                      className="text-red-600 hover:text-red-700 h-5 sm:h-6 w-5 sm:w-6 p-0"
                                     >
-                                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                      <Trash2 className="w-3 h-3" />
                                     </Button>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
@@ -315,29 +315,29 @@ export default function StudentRoster() {
                             </>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs h-5 px-2">
+                        <div className="flex items-center gap-1 mt-1">
+                          <Badge variant="secondary" className="text-xs h-4 px-1">
                             {(isEditing ? editingDisplayStudents.length : displayStudents.length)}名
                           </Badge>
                           {isEditing && (
-                            <Badge variant="outline" className="text-blue-600 border-blue-400 text-xs h-5 px-2">編集中</Badge>
+                            <Badge variant="outline" className="text-blue-600 border-blue-400 text-xs h-4 px-1">編集中</Badge>
                           )}
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-2 p-2 sm:p-3 pt-0">
+                      <CardContent className="space-y-1 p-1 sm:p-2 pt-0">
                         {/* 生徒リスト */}
                         <div className="grid grid-cols-2 gap-1">
                           {(isEditing ? editingDisplayStudents : displayStudents).map((student, index) => (
-                            <div key={index} className="flex items-center justify-between p-1 sm:p-2 bg-gray-50 rounded text-xs sm:text-sm">
-                              <span className="truncate pr-2">{student}</span>
+                            <div key={index} className="flex items-center justify-between p-1 bg-gray-50 rounded text-xs">
+                              <span className="truncate pr-1">{student}</span>
                               {isEditing && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => setEditStudents(editStudents.filter(s => s !== student))}
-                                  className="text-red-600 hover:text-red-700 h-5 w-5 p-0 flex-shrink-0"
+                                  className="text-red-600 hover:text-red-700 h-4 w-4 p-0 flex-shrink-0"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-2 h-2" />
                                 </Button>
                               )}
                             </div>
@@ -345,13 +345,13 @@ export default function StudentRoster() {
                         </div>
                         {/* 生徒追加 */}
                         {isEditing && (
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             <div className="flex space-x-1 items-center">
                               <Input
                                 placeholder="生徒名"
                                 value={newStudentName}
                                 onChange={(e) => setNewStudentName(e.target.value)}
-                                className="text-xs sm:text-sm h-7 sm:h-8"
+                                className="text-xs h-5 sm:h-6"
                                 disabled={isSaving}
                                 onKeyPress={(e) => {
                                   if (e.key === 'Enter' && newStudentName.trim()) {
@@ -369,9 +369,9 @@ export default function StudentRoster() {
                                   }
                                 }}
                                 disabled={isSaving}
-                                className="h-7 sm:h-8 w-7 sm:w-8 p-0"
+                                className="h-5 sm:h-6 w-5 sm:w-6 p-0"
                               >
-                                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Plus className="w-3 h-3" />
                               </Button>
                             </div>
                             {isSaving && <span className="text-xs text-blue-600">保存中...</span>}

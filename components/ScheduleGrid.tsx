@@ -57,6 +57,7 @@ interface EditScheduleData {
   startTime: string;
   endTime: string;
   column: number;
+  description?: string;
 }
 
 export default function ScheduleGrid() {
@@ -144,7 +145,8 @@ export default function ScheduleGrid() {
         date: item.date || format(new Date(), 'yyyy-MM-dd'),
         startTime: item.startTime,
         endTime: item.endTime,
-        column: item.column
+        column: item.column,
+        description: item.description ?? ''
       });
       setShowEditModal(true);
     } else {
@@ -167,7 +169,8 @@ export default function ScheduleGrid() {
       date: format(date, 'yyyy-MM-dd'),
       startTime: timeSlot,
       endTime: endTime,
-      column: column
+      column: column,
+      description: ''
     });
     setShowEditModal(true);
   };
@@ -179,7 +182,8 @@ export default function ScheduleGrid() {
       date: format(new Date(), 'yyyy-MM-dd'),
       startTime: TIME_SLOTS[0],
       endTime: TIME_SLOTS[2], // 2時間後
-      column: 0
+      column: 0,
+      description: ''
     });
     setShowEditModal(true);
   };
@@ -209,12 +213,12 @@ export default function ScheduleGrid() {
         });
       } else {
         // 新規作成の場合
-        const { subject, className, date, startTime, endTime, column } = scheduleData;
+        const { subject, className, date, startTime, endTime, column, description } = scheduleData;
         const classId = `${subject}_${className}`;
         const scheduleRef = ref(database, 'schedule');
-        const newRef = await push(scheduleRef, { subject, className, date, startTime, endTime, column, classId });
+        const newRef = await push(scheduleRef, { subject, className, date, startTime, endTime, column, classId, description });
         // idのみ追加
-        await set(newRef, { subject, className, date, startTime, endTime, column, classId, id: newRef.key });
+        await set(newRef, { subject, className, date, startTime, endTime, column, classId, description, id: newRef.key });
       }
       setShowEditModal(false);
       setEditingSchedule(null);
@@ -447,7 +451,6 @@ function EditScheduleModal({
   const handleSubjectChange = (subject: string) => {
     const classes = getClassesForSubject(subject);
     const firstClass = classes[0] || '';
-    
     setFormData(prev => ({
       ...prev,
       subject,
@@ -467,11 +470,17 @@ function EditScheduleModal({
     const startIndex = TIME_SLOTS.indexOf(startTime);
     const endIndex = Math.min(startIndex + 2, TIME_SLOTS.length - 1); // 2スロット後（2時間後）
     const endTime = TIME_SLOTS[endIndex];
-    
     setFormData(prev => ({
       ...prev,
       startTime,
       endTime
+    }));
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      description: e.target.value
     }));
   };
 
@@ -594,6 +603,19 @@ function EditScheduleModal({
                 <option key={i} value={i}>{i + 1}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              説明（任意）
+            </label>
+            <textarea
+              value={formData.description ?? ''}
+              onChange={handleDescriptionChange}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={2}
+              placeholder="授業回数（①）などを入力してください"
+            />
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

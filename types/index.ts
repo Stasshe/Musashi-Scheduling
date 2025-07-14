@@ -21,6 +21,7 @@ export interface Schedule {
   startTime: string;
   endTime: string;
   column: number; // 0-5の列番号
+  description?: string; // オプションの説明フィールド
 }
 
 export interface Subject {

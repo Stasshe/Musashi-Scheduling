@@ -234,16 +234,20 @@ export default function ScheduleGrid() {
         <div className="p-4 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">授業スケジュール</h2>
           <div className="flex gap-2 items-center">
+            {/* 強調テキスト */}
+            <span className="px-2 py-1 rounded-full bg-yellow-200 text-red-900 font-bold text-sm animate-pulse">
+              ここ！！→
+            </span>
             {/* 編集モード切り替えボタン */}
             <button
               className={`px-3 py-1 rounded-full border text-sm font-semibold ${
-                isEditMode 
-                  ? 'bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200' 
-                  : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+              isEditMode 
+                ? 'bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200' 
+                : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
               }`}
               onClick={() => setIsEditMode(!isEditMode)}
             >
-              {isEditMode ? '編集中' : '編集'}
+              {isEditMode ? '編集をやめる' : '編集'}
             </button>
             
             {/* 新規作成ボタン（編集モード時のみ表示） */}

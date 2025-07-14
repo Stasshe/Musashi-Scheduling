@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { database } from '@/lib/firebase';
+import { ref, onValue } from 'firebase/database';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,24 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { UserProfile } from '@/types/';
+import { SUBJECTS } from '@/config/constants'; // SUBJECTSを定義したファイルをインポート
 
-const SUBJECTS = [
-  { id: 'english', name: '英語' },
-  { id: 'japanese', name: '国語' },
-  { id: 'math', name: '数学' },
-  { id: 'science', name: '理科' },
-  { id: 'social', name: '社会' },
-  { id: 'other', name: 'その他' }
-];
-
-const SAMPLE_CLASSES = {
-  english: ['英語A', '英語B', '英語C'],
-  japanese: ['国語A', '国語B'],
-  math: ['数学A', '数学B', '数学C'],
-  science: ['理科A', '理科B'],
-  social: ['社会A', '社会B'],
-  other: ['その他A']
-};
+// SAMPLE_CLASSESは削除。Firebaseから取得する。
 
 interface InitialSetupModalProps {
   isOpen: boolean;
@@ -36,6 +23,17 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
   const [name, setName] = useState('');
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
+  const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
+
+  // Firebaseからrosterデータ取得
+  useEffect(() => {
+    const rosterRef = ref(database, 'roster');
+    const unsubscribe = onValue(rosterRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setRoster(val);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleClassToggle = (className: string) => {
     setSelectedClasses(prev => 
@@ -84,12 +82,11 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
             <Label className="text-lg font-medium">
               所属クラスを選択してください（複数選択可）
             </Label>
-            
             {SUBJECTS.map(subject => (
               <div key={subject.id} className="space-y-2">
                 <h3 className="font-medium text-gray-700">{subject.name}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {SAMPLE_CLASSES[subject.id as keyof typeof SAMPLE_CLASSES].map(className => (
+                  {(roster[subject.id] ? Object.keys(roster[subject.id]) : []).map(className => (
                     <div key={className} className="flex items-center space-x-2">
                       <Checkbox
                         id={className}

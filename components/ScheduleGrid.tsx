@@ -372,10 +372,11 @@ export default function ScheduleGrid() {
                           return (
                             <div
                               key={item.id}
-                              className={`absolute left-0.5 right-0.5 rounded-sm border shadow-sm cursor-pointer hover:opacity-80 ${colorClass}${isMyClass ? ' ring-2 ring-blue-400' : ''}`}
+                              className={`absolute left-0.5 right-0.5 rounded-sm border shadow-sm cursor-pointer hover:opacity-80${isMyClass ? ' ring-2 ring-blue-400' : ''}`}
                               style={{
                                 top: `${getTimeSlotPosition(item.startTime)}px`,
                                 height: `${getScheduleHeight(item.startTime, item.endTime)}px`,
+                                backgroundColor: colorClass,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',

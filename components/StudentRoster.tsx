@@ -161,7 +161,7 @@ export default function StudentRoster() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex space-x-2">
                     <Input
-                      placeholder={`新しい${subject.name}クラス名`}
+                      placeholder={`新しい${subject.name}クラス名 例: 二次対策Ⅱ`}
                       value={newClassName}
                       onChange={(e) => setNewClassName(e.target.value)}
                       onKeyPress={(e) => {
@@ -175,6 +175,10 @@ export default function StudentRoster() {
                       <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       追加
                     </Button>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      クラスを追加すると、初期生徒として「nobody」が登録されます。<br />
+                      クラスの名前に教科名をつける必要はありません。
+                    </p>
                   </div>
                 </CardContent>
               </Card>

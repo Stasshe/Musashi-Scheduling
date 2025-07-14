@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useState, useEffect } from 'react';
+import { FiMenu, FiUser, FiEdit2 } from 'react-icons/fi';
+import ScheduleIcon from './ui/schedule';
+import RosterIcon from './ui/roster';
 
-export default function Header() {
+export default function Header({ active }: { active: string }) {
   const [userProfile, setUserProfile] = useLocalStorage('userProfile', { name: '', registeredClasses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile.name || '');
+  const [navOpen, setNavOpen] = useState(false);
 
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {
@@ -34,13 +38,15 @@ export default function Header() {
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-3">
-              <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'serif' }}>
+          {/* 左側: ロゴとナビゲーション */}
+          <div className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'serif' }}>
                 武蔵
               </h1>
             </Link>
-            <nav className="flex space-x-6">
+            {/* PC: ナビゲーション */}
+            <nav className="hidden sm:flex space-x-6 ml-8">
               <Link 
                 href="/" 
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
@@ -54,19 +60,34 @@ export default function Header() {
                 名簿管理
               </Link>
             </nav>
+            
+            {/* activeに応じてアイコンボタン表示: スマホ（sm未満） */}
+            <div className="sm:hidden">
+              {active === 'root' ? (
+                <Link href="/register" className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="名簿管理">
+                  <RosterIcon size={24} />
+                </Link>
+              ) : active === 'register' ? (
+                <Link href="/" className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded" aria-label="スケジュール">
+                  <ScheduleIcon size={24} />
+                </Link>
+              ) : null}
+            </div>
           </div>
+          {/* 右側: ユーザー情報とアクション */}
           <div className="flex items-center space-x-2">
-            <span className="text-gray-700 font-medium" suppressHydrationWarning>
+            <span className="text-gray-700 font-medium max-w-[100px] truncate" suppressHydrationWarning>
               {userProfile.name || ''}
             </span>
             <button
-              className="ml-2 px-2 py-1 text-sm border rounded text-gray-600 hover:bg-gray-100"
+              className="ml-1 p-2 text-gray-600 hover:bg-gray-100 rounded"
               onClick={() => {
                 setEditName(userProfile.name || '');
                 setIsModalOpen(true);
               }}
+              aria-label="名前編集"
             >
-              編集
+              <FiEdit2 size={18} />
             </button>
           </div>
         </div>

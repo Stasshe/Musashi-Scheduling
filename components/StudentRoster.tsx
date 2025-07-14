@@ -65,12 +65,20 @@ export default function StudentRoster() {
   // クラス追加
   const addClass = async (subject: string) => {
     if (newClassName.trim()) {
-      await update(ref(database, `roster/${subject}`), {
-        [newClassName.trim()]: []
-      });
+      const subjectRef = ref(database, `roster/${subject}`);
+      const snapshot = await import('firebase/database').then(({ get }) => get(subjectRef));
+      if (snapshot.exists()) {
+        await update(subjectRef, {
+          [newClassName.trim()]: []
+        });
+      } else {
+        await set(subjectRef, {
+          [newClassName.trim()]: []
+        });
+      }
       setNewClassName('');
     }
-  };
+  }
 
 
   // クラス削除

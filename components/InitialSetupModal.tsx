@@ -21,8 +21,8 @@ interface InitialSetupModalProps {
 
 export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModalProps) {
   const [name, setName] = useState('');
-  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
 
   // Firebaseからrosterデータ取得
@@ -35,12 +35,63 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
     return () => unsubscribe();
   }, []);
 
+  // rosterデータとnameが変化したら、selectedClassesを更新
+  useEffect(() => {
+    if (!name.trim() || !roster) return;
+    const selected: string[] = [];
+    Object.entries(roster).forEach(([subjectId, classes]) => {
+      Object.entries(classes).forEach(([className, students]) => {
+        if (Array.isArray(students) && students.includes(name.trim())) {
+          selected.push(className);
+        }
+      });
+    });
+    setSelectedClasses(selected);
+  }, [roster, name]);
+
+  // userProfile.registeredClassesが変化したらselectedClassesも更新
+  useEffect(() => {
+    setSelectedClasses(userProfile?.registeredClasses || []);
+  }, [userProfile?.registeredClasses]);
+
   const handleClassToggle = (className: string) => {
-    setSelectedClasses(prev => 
-      prev.includes(className) 
-        ? prev.filter(c => c !== className)
-        : [...prev, className]
-    );
+    setSelectedClasses(prev => {
+      let updated;
+      if (prev.includes(className)) {
+        updated = prev.filter(c => c !== className);
+      } else {
+        updated = [...prev, className];
+      }
+
+      // rosterデータとnameが揃っている場合のみfirebaseへ反映
+      if (name.trim()) {
+        // どのsubjectか特定
+        let subjectId: string | null = null;
+        Object.entries(roster).forEach(([subId, classes]) => {
+          if (classes[className]) subjectId = subId;
+        });
+        if (subjectId !== null) {
+          const students = roster[subjectId][className] || [];
+          let newStudents;
+          if (updated.includes(className)) {
+            // 追加
+            if (!students.includes(name.trim())) {
+              newStudents = [...students, name.trim()];
+            } else {
+              newStudents = students;
+            }
+          } else {
+            // 削除
+            newStudents = students.filter(s => s !== name.trim());
+          }
+          // Firebaseへ反映
+          import('firebase/database').then(({ set, ref }) => {
+            set(ref(database, `roster/${subjectId}/${className}`), newStudents);
+          });
+        }
+      }
+      return updated;
+    });
   };
 
   const handleSave = () => {

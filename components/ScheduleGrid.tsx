@@ -104,27 +104,27 @@ export default function ScheduleGrid() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-screen flex flex-col">
         <div className="p-4 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">授業スケジュール</h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button
-              className="px-2 py-1 rounded bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 text-sm"
+              className="p-2 rounded-full bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 flex items-center justify-center"
               onClick={() => setDateOffset(dateOffset - 1)}
               aria-label="前の日付"
             >
-              ◀
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
             <button
-              className="px-2 py-1 rounded bg-blue-100 border border-blue-300 text-blue-700 hover:bg-blue-200 text-sm"
+              className="px-3 py-1 rounded-full bg-blue-100 border border-blue-300 text-blue-700 hover:bg-blue-200 text-sm font-semibold"
               onClick={() => setDateOffset(0)}
               aria-label="今日に戻る"
             >
-              今日に戻る
+              今日
             </button>
             <button
-              className="px-2 py-1 rounded bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 text-sm"
+              className="p-2 rounded-full bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 flex items-center justify-center"
               onClick={() => setDateOffset(dateOffset + 1)}
               aria-label="次の日付"
             >
-              ▶
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
         </div>

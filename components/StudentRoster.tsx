@@ -18,7 +18,13 @@ const SUBJECTS = [
 ];
 
 // サンプルデータ
-const INITIAL_DATA = {
+type RosterData = {
+  [subjectId: string]: {
+    [className: string]: string[];
+  };
+};
+
+const INITIAL_DATA: RosterData = {
   english: {
     '英語A': ['田中太郎', '佐藤花子', '山田次郎'],
     '英語B': ['鈴木一郎', '高橋美咲', '井上健太'],
@@ -47,7 +53,7 @@ const INITIAL_DATA = {
 };
 
 export default function StudentRoster() {
-  const [data, setData] = useState(INITIAL_DATA);
+  const [data, setData] = useState<RosterData>(INITIAL_DATA);
   const [editingClass, setEditingClass] = useState<{ subject: string; className: string } | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newClassName, setNewClassName] = useState('');
@@ -57,8 +63,8 @@ export default function StudentRoster() {
       setData(prev => ({
         ...prev,
         [subject]: {
-          ...prev[subject as keyof typeof prev],
-          [className]: [...(prev[subject as keyof typeof prev][className] || []), newStudentName.trim()]
+          ...prev[subject],
+          [className]: [...(prev[subject]?.[className] || []), newStudentName.trim()]
         }
       }));
       setNewStudentName('');
@@ -69,8 +75,8 @@ export default function StudentRoster() {
     setData(prev => ({
       ...prev,
       [subject]: {
-        ...prev[subject as keyof typeof prev],
-        [className]: prev[subject as keyof typeof prev][className].filter(name => name !== studentName)
+        ...prev[subject],
+        [className]: prev[subject]?.[className]?.filter(name => name !== studentName) || []
       }
     }));
   };
@@ -80,7 +86,7 @@ export default function StudentRoster() {
       setData(prev => ({
         ...prev,
         [subject]: {
-          ...prev[subject as keyof typeof prev],
+          ...prev[subject],
           [newClassName.trim()]: []
         }
       }));
@@ -90,7 +96,7 @@ export default function StudentRoster() {
 
   const removeClass = (subject: string, className: string) => {
     setData(prev => {
-      const newSubjectData = { ...prev[subject as keyof typeof prev] };
+      const newSubjectData = { ...prev[subject] };
       delete newSubjectData[className];
       return {
         ...prev,

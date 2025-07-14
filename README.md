@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 宮本塾 夏期講習スケジュール管理サイト
 
-First, run the development server:
+このサイトは、宮本塾の夏期講習における授業スケジュールと生徒名簿を、みんなで協力して管理・編集するためのクラウドサービスです。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+先生やスタッフ、生徒のみなさんが自由にスケジュールを追加・編集できる仕組みになっています。授業の予定や変更、クラス分けなど、気づいたことがあれば誰でもすぐに反映できるため、常に最新の情報をみんなで共有できます。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+【運用の流れ】
+- 授業やクラスの予定が決まったら、スケジュールに追加してください。
+- 変更や修正が必要な場合は、直接編集して反映してください。
+- 生徒名簿も随時更新できます。新しい生徒が参加した場合や、クラス移動があった場合もすぐに修正できます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+みんなで協力してスケジュールを管理することで、ミスや漏れを防ぎ、よりスムーズな運営が可能になります。誰でも簡単に使えるように設計されていますので、初めての方も安心してご利用ください。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 技術情報
 
-To learn more about Next.js, take a look at the following resources:
+- 本サイトは Next.js を用いて構築されています。
+- スケジュールや名簿データはクラウド上（Firebase）で管理されており、リアルタイムで反映・共有されます。
+- 編集はブラウザ上から直接行えます。編集モードに切り替えることで、授業やクラスの追加・修正が可能です。
+- UIはモバイル・PC両対応で、直感的に操作できるようデザインされています。
+- 変更履歴やデータの保存は自動で行われるため、特別な操作は不要です。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+【開発・運用担当】
+宮本塾スタッフ有志
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ご協力・ご参加、どうぞよろしくお願いいたします。

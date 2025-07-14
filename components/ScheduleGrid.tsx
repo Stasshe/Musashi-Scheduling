@@ -263,10 +263,12 @@ export default function ScheduleGrid() {
         <div className="p-2 sm:p-4 border-b border-gray-200 flex-shrink-0 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base sm:text-xl font-bold text-gray-900 whitespace-nowrap">授業スケジュール</h2>
           <div className="flex flex-wrap gap-1 sm:gap-2 items-center">
-            {/* 強調テキスト */}
-            <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full bg-yellow-200 text-red-900 font-bold text-xs sm:text-sm animate-pulse whitespace-nowrap">
-              ここ！！→
-            </span>
+            {/* 強調テキスト（編集モード時は非表示） */}
+            {!isEditMode && (
+              <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full bg-yellow-200 text-red-900 font-bold text-xs sm:text-sm animate-pulse whitespace-nowrap">
+                ここ！！→
+              </span>
+            )}
             {/* 編集モード切り替えボタン */}
             <button
               className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border text-xs sm:text-sm font-semibold ${
@@ -278,15 +280,6 @@ export default function ScheduleGrid() {
             >
               {isEditMode ? '編集をやめる' : '編集'}
             </button>
-            {/* 新規作成ボタン（編集モード時のみ表示） */}
-            {isEditMode && (
-              <button
-                className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-green-100 border border-green-300 text-green-700 hover:bg-green-200 text-xs sm:text-sm font-semibold"
-                onClick={handleCreateNew}
-              >
-                新規作成
-              </button>
-            )}
             <button
               className="p-1 sm:p-2 rounded-full bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 flex items-center justify-center"
               onClick={() => setDateOffset(dateOffset - 1)}

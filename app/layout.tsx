@@ -9,8 +9,8 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: '塾「武蔵」- スケジュール管理システム',
-  description: '塾の授業スケジュールと生徒名簿を管理するシステム',
+  title: '「武蔵」- スケジュール管理システム',
+  description: '宮本塾の超複雑な夏期講習の授業スケジュールと生徒名簿を管理するシステム',
 };
 
 export default function RootLayout({

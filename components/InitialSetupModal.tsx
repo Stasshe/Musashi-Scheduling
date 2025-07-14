@@ -110,7 +110,7 @@ export default function InitialSetupModal({ isOpen, onClose }: InitialSetupModal
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            塾「武蔵」へようこそ
+            「武蔵」スケジューリングシステムへようこそ
           </DialogTitle>
         </DialogHeader>
         

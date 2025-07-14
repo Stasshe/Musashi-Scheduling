@@ -23,8 +23,10 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href="/favicon.png" />
-        {/* Apple Touch Icon も追加可能 */}
+        <link rel="icon" type="image/svg+xml" href="/file.svg" />
         <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#00d9ff79" />
       </head>
       <body className={`${inter.className} ${notoSansJP.variable} font-sans`}>
         {children}

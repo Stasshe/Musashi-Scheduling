@@ -1,0 +1,21 @@
+{
+  "name": "武蔵 - スケジュール管理システム",
+  "short_name": "武蔵スケジュール",
+  "description": "宮本塾の超複雑な夏期講習の授業スケジュールと生徒名簿を管理するシステムです。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00d9ff79",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

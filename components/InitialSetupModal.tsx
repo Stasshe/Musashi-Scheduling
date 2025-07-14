@@ -30,6 +30,9 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
   const [name, setName] = editMode ? [propName ?? '', propSetName ?? (() => {})] : useState('');
   const [selectedClasses, setSelectedClasses] = useState<string[]>(registeredClasses ?? []);
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
+  // 新規登録時用のローカルストレージsetter
+  const [localName, setLocalName] = useLocalStorage<string>('name', '');
+  const [localClasses, setLocalClasses] = useLocalStorage<string[]>('registeredClasses', []);
 
   // Firebaseからrosterデータ取得
   useEffect(() => {
@@ -114,6 +117,9 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
       if (editMode && setRegisteredClasses) {
         setRegisteredClasses(selectedClasses);
       }
+      // ローカルストレージに保存
+      setLocalName(name.trim());
+      setLocalClasses(selectedClasses);
       onClose();
     }
   };

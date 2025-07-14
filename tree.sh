@@ -1,9 +1,9 @@
 tree -I 'node_modules|.next|out' > tree.txt
 
 echo "" >> tree.txt
-echo "src/*.ts, *.tsx の統計:" >> tree.txt
+echo "./*.ts, *.tsx の統計:" >> tree.txt
 
-files=$(find src/ -type f \( -name "*.ts" -o -name "*.tsx" \))
+files=$(find ./ -type f \( -name "*.ts" -o -name "*.tsx" \) ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/out/*")
 
 total_lines=0
 total_chars=0

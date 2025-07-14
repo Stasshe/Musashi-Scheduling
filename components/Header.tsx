@@ -7,11 +7,23 @@ import { FiEdit2 } from 'react-icons/fi';
 import ScheduleIcon from './ui/schedule';
 import RosterIcon from './ui/roster';
 import { UserProfile } from '@/types/';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from './ui/alert-dialog';
 
 export default function Header({ active }: { active: string }) {
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile && userProfile.name ? userProfile.name : '');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {
@@ -115,17 +127,34 @@ export default function Header({ active }: { active: string }) {
               </button>
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={() => {
-                  // ローカルストレージ全体をクリア
-                  if (typeof window !== 'undefined') {
-                    window.localStorage.clear();
-                  }
-                  setUserProfile({id: '', name: editName, registeredClasses: [] });
-                  setIsModalOpen(false);
-                }}
+                onClick={() => setIsAlertOpen(true)}
               >
                 保存
               </button>
+      {/* 名前変更警告ダイアログ */}
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>安易に変えないでください</AlertDialogTitle>
+            <AlertDialogDescription>
+              問題が起きる可能性があります。それでも変えますか？
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>いいえ</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.localStorage.clear();
+                }
+                setUserProfile({id: '', name: editName, registeredClasses: [] });
+                setIsModalOpen(false);
+                setIsAlertOpen(false);
+              }}
+            >はい</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
             </div>
           </div>
         </div>

@@ -170,7 +170,7 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                 <p className="text-sm text-gray-600">
                   すでに名簿に登録されている場合はチェックボックスに自動でチェックが入ります。
                   <br />
-                  フルネームで、苗字と名前を分けずに入力してください。
+                  必ず完全なフルネームで入力してください。登録名簿と完全一致する必要があります。
                   <br />
                   例: 松下 → 松下彰忠
                 </p>

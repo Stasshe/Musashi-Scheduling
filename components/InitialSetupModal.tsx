@@ -192,6 +192,10 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                 <div className="mt-4 text-center">
                   <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded font-semibold text-base">
                     下の「保存して始める」ボタンを押してください
+                    <br />
+                    <span className="text-sm text-gray-500">
+                      「名簿」ページから、後からいつでも簡単に変更できます。
+                    </span>
                   </span>
                 </div>
               </div>

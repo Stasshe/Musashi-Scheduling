@@ -436,10 +436,10 @@ export default function ScheduleGrid() {
                               }}
                               onClick={() => handleItemClick(item)}
                             >
-                              <div className="font-bold lg:text-[8px] mb-0.5">
+                              <div className="font-bold text-[8px] mb-0.5">
                                 {subjectShort}
                               </div>
-                                <div className="font-medium sm:text-xs lg:text-[10px] leading-tight roman-numeral">
+                                <div className="font-medium text-[10px] leading-tight roman-numeral">
                                 {truncateTitle(item.className ?? subjectName)}
                               </div>
                               {isEditMode && (

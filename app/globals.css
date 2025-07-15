@@ -85,6 +85,4 @@
 /* ローマ数字・二次用フォント */
 .roman-numeral {
   font-family: 'Roboto Slab', serif;
-  font-weight: 700;
-  letter-spacing: 0.07em;
 }

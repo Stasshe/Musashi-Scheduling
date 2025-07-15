@@ -153,8 +153,14 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <Dialog
+        open={isOpen}
+        onOpenChange={handleDialogOpenChange}
+      >
+        <DialogContent
+          className="max-w-2xl max-h-[80vh] overflow-y-auto"
+          showCloseButton={!!editMode} // バツボタンをeditMode以外で非表示に
+        >
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-center">
               {editMode ? '所属クラスの編集' : '「武蔵」スケジューリングシステムへようこそ'}
@@ -183,6 +189,11 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                   onChange={(e) => setName(e.target.value)}
                   className="text-lg"
                 />
+                <div className="mt-4 text-center">
+                  <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded font-semibold text-base">
+                    下の「保存して始める」ボタンを押してください
+                  </span>
+                </div>
               </div>
             )}
             <div className="space-y-4">
@@ -209,14 +220,17 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                 </div>
               ))}
             </div>
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col items-center space-y-2 mt-6">
               <Button 
                 onClick={handleSave} 
                 disabled={!name || !name.trim()}
-                className="px-8 py-2"
+                className="px-8 py-2 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {editMode ? '保存' : '保存して始める'}
               </Button>
+              {!editMode && (
+                <span className="text-sm text-gray-500">※登録が完了するまでこの画面は閉じられません</span>
+              )}
             </div>
           </div>
         </DialogContent>

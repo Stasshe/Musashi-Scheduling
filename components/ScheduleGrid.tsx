@@ -283,10 +283,12 @@ export default function ScheduleGrid() {
     return Object.keys(roster[subject]);
   };
 
-  // 現在時刻の赤線表示用
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const nowPosition = (nowMinutes - GRID_START) * GRID_HEIGHT_PER_MIN;
+  // 現在時刻の赤線表示用（SSR hydration error対策）
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const now = mounted ? new Date() : null;
+  const nowMinutes = now ? now.getHours() * 60 + now.getMinutes() : null;
+  const nowPosition = nowMinutes !== null ? (nowMinutes - GRID_START) * GRID_HEIGHT_PER_MIN : null;
 
   return (
     <>
@@ -416,8 +418,8 @@ export default function ScheduleGrid() {
                             onClick={() => handleGridClick(date, columnIndex, timeSlot)}
                           />
                         ))}
-                        {/* 現在時刻の赤線（今日の日付のみ表示） */}
-                        {isSameDay(date, now) && nowMinutes >= GRID_START && nowMinutes <= GRID_END && (
+                        {/* 現在時刻の赤線（今日の日付のみ表示、マウント後のみ描画） */}
+                        {mounted && now && isSameDay(date, now) && nowMinutes !== null && nowMinutes >= GRID_START && nowMinutes <= GRID_END && (
                           <div
                             className="absolute w-full pointer-events-none"
                             style={{

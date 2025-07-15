@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { FiShare } from 'react-icons/fi';
 import Header from '@/components/Header';
 import ScheduleGrid from '@/components/ScheduleGrid';
 import InitialSetupModal from '@/components/InitialSetupModal';
@@ -35,6 +36,17 @@ export default function Home() {
             </p>
           </div>
           <ScheduleGrid />
+            {/* iOSアプリ化の案内 */}
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+              <h2 className="font-bold text-blue-700 mb-2">iOSでアプリ化する方法</h2>
+              <ol className="list-decimal pl-5 text-sm text-gray-700">
+                <li>Safariでこのサイトを開きます。</li>
+                <li>画面下部の「共有」ボタン <FiShare className="inline-block align-middle text-lg" /> をタップします。</li>
+                <li>「ホーム画面に追加」を選択します。</li>
+                <li>名前を入力して「追加」を押すと、ホーム画面にアイコンが表示され、アプリのように使えます。</li>
+              </ol>
+              <p className="mt-2 text-xs text-gray-500">※iPadやiPhoneで利用できます。ホーム画面から起動すると、より快適に使えます。</p>
+            </div>
         </div>
       </main>
 

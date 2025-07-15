@@ -133,9 +133,14 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
         registeredClasses: selectedClasses
       });
       onClose();
+      // 初回ログイン時（editMode=false）は500ms後にページリロード
+      if (!editMode) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
     }
   }
-
   // バツボタンで閉じようとした時の警告表示用
   const [showAlert, setShowAlert] = useState(false);
 

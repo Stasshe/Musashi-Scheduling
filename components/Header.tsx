@@ -164,10 +164,14 @@ export default function Header({ active }: { active: string }) {
               onClick={() => {
                 if (typeof window !== 'undefined') {
                   window.localStorage.clear();
+                  setUserProfile({id: '', name: editName, registeredClasses: [] });
+                  setIsModalOpen(false);
+                  setIsAlertOpen(false);
+                  // 保存後にリロード
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 500);
                 }
-                setUserProfile({id: '', name: editName, registeredClasses: [] });
-                setIsModalOpen(false);
-                setIsAlertOpen(false);
               }}
             >はい</AlertDialogAction>
           </AlertDialogFooter>

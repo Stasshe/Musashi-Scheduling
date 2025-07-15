@@ -386,7 +386,7 @@ export default function ScheduleGrid() {
                 {TIME_SLOTS.map((time) => (
                   <div
                     key={time}
-                    className="p-1 text-xs text-gray-600 border-b border-gray-100 flex items-center justify-center"
+                    className="p-1 text-xs text-gray-600 border-b border-gray-300 flex items-start justify-center pt-0"
                     style={{ height: '38px' }}
                   >
                     {time}

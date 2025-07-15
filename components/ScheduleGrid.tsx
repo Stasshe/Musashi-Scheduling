@@ -283,6 +283,11 @@ export default function ScheduleGrid() {
     return Object.keys(roster[subject]);
   };
 
+  // 現在時刻の赤線表示用
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nowPosition = (nowMinutes - GRID_START) * GRID_HEIGHT_PER_MIN;
+
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-screen flex flex-col">
@@ -401,7 +406,7 @@ export default function ScheduleGrid() {
                         {TIME_SLOTS.map((timeSlot, timeIndex) => (
                           <div
                             key={timeIndex}
-                            className={`absolute w-full border-b border-gray-50 ${
+                            className={`absolute w-full border-b border-gray-300 ${
                               isEditMode ? 'hover:bg-gray-50 cursor-pointer' : ''
                             }`}
                             style={{
@@ -411,6 +416,19 @@ export default function ScheduleGrid() {
                             onClick={() => handleGridClick(date, columnIndex, timeSlot)}
                           />
                         ))}
+                        {/* 現在時刻の赤線（今日の日付のみ表示） */}
+                        {isSameDay(date, now) && nowMinutes >= GRID_START && nowMinutes <= GRID_END && (
+                          <div
+                            className="absolute w-full pointer-events-none"
+                            style={{
+                              top: `${nowPosition}px`,
+                              height: '2px',
+                              background: 'red',
+                              zIndex: 20,
+                              borderRadius: '1px'
+                            }}
+                          />
+                        )}
                         {/* 授業アイテム */}
                         {(getScheduleForDate(date, columnIndex) ?? []).map(item => {
                           // subjectはID（english等）か日本語名（英語等）どちらも来る可能性がある

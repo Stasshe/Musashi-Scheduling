@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import ScheduleIcon from './ui/schedule';
 import RosterIcon from './ui/roster';
@@ -25,9 +25,11 @@ export default function Header({ active }: { active: string }) {
   const [editName, setEditName] = useState(userProfile && userProfile.name ? userProfile.name : '');
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   // モーダルが閉じたタイミングでuserProfileを再取得
+  // モーダルやアラートが閉じた瞬間だけuserProfileを再取得
+  const prevModalOpen = useRef(isModalOpen);
+  const prevAlertOpen = useRef(isAlertOpen);
   useEffect(() => {
-    if (!isModalOpen && !isAlertOpen) {
-      // ローカルストレージから最新値を取得
+    if ((prevModalOpen.current === true && isModalOpen === false) || (prevAlertOpen.current === true && isAlertOpen === false)) {
       if (typeof window !== 'undefined') {
         const item = window.localStorage.getItem('userProfile');
         if (item) {
@@ -37,7 +39,9 @@ export default function Header({ active }: { active: string }) {
         }
       }
     }
-  }, [isModalOpen, isAlertOpen, setUserProfile]);
+    prevModalOpen.current = isModalOpen;
+    prevAlertOpen.current = isAlertOpen;
+  }, [isModalOpen, isAlertOpen]);
   
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {

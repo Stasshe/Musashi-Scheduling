@@ -24,6 +24,20 @@ export default function Header({ active }: { active: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editName, setEditName] = useState(userProfile && userProfile.name ? userProfile.name : '');
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  // モーダルが閉じたタイミングでuserProfileを再取得
+  useEffect(() => {
+    if (!isModalOpen && !isAlertOpen) {
+      // ローカルストレージから最新値を取得
+      if (typeof window !== 'undefined') {
+        const item = window.localStorage.getItem('userProfile');
+        if (item) {
+          try {
+            setUserProfile(JSON.parse(item));
+          } catch {}
+        }
+      }
+    }
+  }, [isModalOpen, isAlertOpen, setUserProfile]);
   
   // userProfile.nameが変化したらeditNameも同期
   useEffect(() => {

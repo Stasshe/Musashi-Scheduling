@@ -26,7 +26,7 @@ export default function Home() {
         <div className="space-y-8">
           {/* 上半分：スケジュール */}
           <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded mb-4">
-            超複雑な宮宿夏期講習のスケジュールを、<span className="font-bold">みんなで編集</span>していくためのシステムです。
+            超複雑な宮塾夏期講習のスケジュールを、<span className="font-bold">みんなで編集</span>していくためのシステムです。
             <br />
             学校のiPadでも見られます。というかそっちの方が見やすいからiPad推奨。
             <p className="text-sm sm:text-sm text-xs text-gray-800 font-semibold">

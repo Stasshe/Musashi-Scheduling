@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SUBJECT_COLORS } from '@/config/constants';
-import type { Schedule } from '@/types';
+import type { Schedule, Student } from '@/types';
 
-interface ScheduleModalProps {
+type ScheduleModalProps = {
   selectedItem: Schedule | null;
   onClose: () => void;
-}
+  students?: Student[];
+};
 
-const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose }) => {
+
+const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose, students = [] }) => {
   if (!selectedItem) return null;
   // モーダル外クリックで閉じる
   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -15,6 +17,12 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose }) 
       onClose();
     }
   };
+
+  // 参加生徒リストを抽出
+  const participatingStudents = students.filter(student =>
+    student.classes.includes(selectedItem.className)
+  );
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -60,6 +68,21 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose }) 
             <span className="text-sm text-gray-900">
               {selectedItem.description || 'なし'}
             </span>
+          </div>
+          {/* 参加生徒リスト表示 */}
+          <div className="flex items-start">
+            <span className="text-sm font-medium text-gray-600 w-16">参加者</span>
+            <div className="flex-1 flex flex-wrap gap-1">
+              {participatingStudents.length > 0 ? (
+                participatingStudents.map(student => (
+                  <span key={student.id} className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-800">
+                    {student.name}
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-gray-400">該当なし</span>
+              )}
+            </div>
           </div>
         </div>
       </div>

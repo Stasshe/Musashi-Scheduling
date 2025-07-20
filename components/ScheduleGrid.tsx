@@ -25,6 +25,7 @@ const SUBJECT_ID_TO_SHORT: Record<string, string> = {
 import { useState, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import ScheduleModal from './ScheduleModal';
+import type { Student } from '@/types';
 import { database } from '@/lib/firebase';
 import { ref, onValue, push, set } from 'firebase/database';
 import { format, addDays, isToday, isSameDay } from 'date-fns';
@@ -85,6 +86,7 @@ export default function ScheduleGrid() {
   const [selectedItem, setSelectedItem] = useState<Schedule | null>(null);
   const [dateOffset, setDateOffset] = useState(0); // 横スクロール用
   const [roster, setRoster] = useState<any>({});
+  const [students, setStudents] = useState<Student[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<EditScheduleData | null>(null);
@@ -123,6 +125,29 @@ export default function ScheduleGrid() {
     const unsubscribe = onValue(rosterRef, (snapshot) => {
       const val = snapshot.val() || {};
       setRoster(val);
+
+      // rosterデータからStudent型配列を生成
+      const studentMap: { [id: string]: Student } = {};
+      Object.entries(val).forEach(([subject, classes]) => {
+        Object.entries(classes as Record<string, string[]>).forEach(([className, studentNames]) => {
+          (studentNames as string[]).forEach(name => {
+            if (!name || name === 'nobody') return;
+            if (!studentMap[name]) {
+              studentMap[name] = {
+                id: name,
+                name,
+                classes: [className]
+              };
+            } else {
+              // 既存生徒ならクラス追加
+              if (!studentMap[name].classes.includes(className)) {
+                studentMap[name].classes.push(className);
+              }
+            }
+          });
+        });
+      });
+      setStudents(Object.values(studentMap));
     });
     return () => unsubscribe();
   }, []);
@@ -478,8 +503,8 @@ export default function ScheduleGrid() {
         </div>
       </div>
 
-      {/* 詳細モーダルウィンドウ */}
-      <ScheduleModal selectedItem={selectedItem} onClose={closeModal} />
+  {/* 詳細モーダルウィンドウ */}
+  <ScheduleModal selectedItem={selectedItem} onClose={closeModal} students={students} />
 
       {/* 編集モーダルウィンドウ */}
       {showEditModal && editingSchedule && (

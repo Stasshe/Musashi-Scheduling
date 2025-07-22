@@ -87,6 +87,8 @@ export default function ScheduleGrid() {
   const [dateOffset, setDateOffset] = useState(0); // 横スクロール用
   const [roster, setRoster] = useState<any>({});
   const [students, setStudents] = useState<Student[]>([]);
+  // studentConfigs取得
+  const [studentConfigs, setStudentConfigs] = useState<{ [name: string]: { isVisible?: boolean } }>({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<EditScheduleData | null>(null);
@@ -115,6 +117,16 @@ export default function ScheduleGrid() {
         ? val
         : Object.values(val);
       setSchedule(arr);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // studentConfigs取得
+  useEffect(() => {
+    const configsRef = ref(database, 'studentConfigs');
+    const unsubscribe = onValue(configsRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setStudentConfigs(val);
     });
     return () => unsubscribe();
   }, []);
@@ -504,7 +516,13 @@ export default function ScheduleGrid() {
       </div>
 
   {/* 詳細モーダルウィンドウ */}
-  <ScheduleModal selectedItem={selectedItem} onClose={closeModal} students={students} />
+  <ScheduleModal 
+    selectedItem={selectedItem} 
+    onClose={closeModal} 
+    students={students} 
+    studentConfigs={studentConfigs}
+    currentUserName={selectedStudentName}
+  />
 
       {/* 編集モーダルウィンドウ */}
       {showEditModal && editingSchedule && (

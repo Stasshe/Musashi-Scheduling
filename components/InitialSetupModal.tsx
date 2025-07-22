@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, set, get } from 'firebase/database';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,27 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
   const [roster, setRoster] = useState<{ [subjectId: string]: { [className: string]: string[] } }>({});
   // 新規登録時用のローカルストレージsetter（userProfileとして保存）
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', { id: '', name: '', registeredClasses: [] });
+
+  // studentConfigs: { [name]: { isVisible: boolean } }
+  const [studentConfigs, setStudentConfigs] = useState<{ [name: string]: { isVisible?: boolean } }>({});
+  const [isVisible, setIsVisible] = useState<boolean>(true); // デフォルト公開
+
+  // studentConfigs取得
+  useEffect(() => {
+    const configsRef = ref(database, 'studentConfigs');
+    const unsubscribe = onValue(configsRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setStudentConfigs(val);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // name変更時にisVisibleを同期
+  useEffect(() => {
+    if (!name) return;
+    const config = studentConfigs[name.trim()];
+    setIsVisible(config?.isVisible !== undefined ? config.isVisible : true);
+  }, [name, studentConfigs]);
 
   // Firebaseからrosterデータ取得
   useEffect(() => {
@@ -118,7 +139,7 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (name && name.trim()) {
       if (editMode && propSetName) {
         propSetName(name.trim());
@@ -132,6 +153,12 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
         name: name.trim(),
         registeredClasses: selectedClasses
       });
+      // studentConfigsへisVisible反映
+      try {
+        await set(ref(database, `studentConfigs/${name.trim()}`), { isVisible });
+      } catch (e) {
+        // エラーは無視
+      }
       onClose();
       // 初回ログイン時（editMode=false）は500ms後にページリロード
       if (!editMode) {
@@ -172,6 +199,23 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
+            {/* 公開設定切り替えUI: クラス選択の上部 */}
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 p-2 bg-gray-50 rounded">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="isVisible"
+                  checked={isVisible}
+                  onCheckedChange={checked => setIsVisible(!!checked)}
+                  className="scale-110"
+                />
+                <Label htmlFor="isVisible" className="text-base sm:text-lg font-medium">
+                  他のユーザーから見える（公開）
+                </Label>
+              </div>
+              <span className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
+                チェックを外すと他のユーザーから名前が「*」で表示されます
+              </span>
+            </div>
             {/* 名前入力欄は初期セットアップ時のみ表示 */}
             {!editMode && (
               <div className="space-y-2">

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -38,6 +39,19 @@ type RosterData = {
 };
 
 export default function StudentRoster() {
+  // studentConfigs取得
+  const [studentConfigs, setStudentConfigs] = useState<{ [name: string]: { isVisible?: boolean } }>({});
+  useEffect(() => {
+    const configsRef = ref(database, 'studentConfigs');
+    const unsubscribe = onValue(configsRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setStudentConfigs(val);
+    });
+    return () => unsubscribe();
+  }, []);
+  // ローカルストレージから自分の名前取得
+  const [userProfile] = useLocalStorage<any>('userProfile', { name: '' });
+  const myName = userProfile?.name || '';
   const [data, setData] = useState<RosterData>({});
   const [editingClass, setEditingClass] = useState<{ subject: string; className: string; newClassName: string } | null>(null);
   const [editStudents, setEditStudents] = useState<string[]>([]);
@@ -327,21 +341,27 @@ export default function StudentRoster() {
                       <CardContent className="space-y-1 p-1 sm:p-2 pt-0">
                         {/* 生徒リスト */}
                         <div className="grid grid-cols-2 gap-1">
-                          {(isEditing ? editingDisplayStudents : displayStudents).map((student, index) => (
-                            <div key={index} className="flex items-center justify-between p-1 bg-gray-50 rounded text-xs">
-                              <span className="truncate pr-1">{student}</span>
-                              {isEditing && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setEditStudents(editStudents.filter(s => s !== student))}
-                                  className="text-red-600 hover:text-red-700 h-4 w-4 p-0 flex-shrink-0"
-                                >
-                                  <Trash2 className="w-2 h-2" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
+                          {(isEditing ? editingDisplayStudents : displayStudents).map((student, index) => {
+                            // isVisible判定
+                            const config = studentConfigs[student];
+                            const visible = config?.isVisible !== undefined ? config.isVisible : true;
+                            const displayName = (visible || student === myName) ? student : '*';
+                            return (
+                              <div key={index} className="flex items-center justify-between p-1 bg-gray-50 rounded text-xs">
+                                <span className="truncate pr-1">{displayName}</span>
+                                {isEditing && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditStudents(editStudents.filter(s => s !== student))}
+                                    className="text-red-600 hover:text-red-700 h-4 w-4 p-0 flex-shrink-0"
+                                  >
+                                    <Trash2 className="w-2 h-2" />
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                         {/* 生徒追加 */}
                         {isEditing && (

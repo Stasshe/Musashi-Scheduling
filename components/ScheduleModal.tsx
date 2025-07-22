@@ -6,10 +6,12 @@ type ScheduleModalProps = {
   selectedItem: Schedule | null;
   onClose: () => void;
   students?: Student[];
+  studentConfigs?: { [name: string]: { isVisible?: boolean } };
+  currentUserName?: string;
 };
 
 
-const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose, students = [] }) => {
+const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose, students = [], studentConfigs = {}, currentUserName = '' }) => {
   if (!selectedItem) return null;
   // モーダル外クリックで閉じる
   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -74,11 +76,16 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ selectedItem, onClose, st
             <span className="text-sm font-medium text-gray-600 w-16">参加者</span>
             <div className="flex-1 flex flex-wrap gap-1">
               {participatingStudents.length > 0 ? (
-                participatingStudents.map(student => (
-                  <span key={student.id} className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-800">
-                    {student.name}
-                  </span>
-                ))
+                participatingStudents.map(student => {
+                  const config = studentConfigs[student.name];
+                  const isVisible = config?.isVisible !== undefined ? config.isVisible : true;
+                  const isSelf = currentUserName === student.name;
+                  return (
+                    <span key={student.id} className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-800">
+                      {isVisible || isSelf ? student.name : '*'}
+                    </span>
+                  );
+                })
               ) : (
                 <span className="text-xs text-gray-400">該当なし</span>
               )}

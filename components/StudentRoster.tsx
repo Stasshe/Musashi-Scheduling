@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, X, ShieldAlert } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import {
   AlertDialog,
@@ -55,6 +55,12 @@ export default function StudentRoster() {
   const [data, setData] = useState<RosterData>({});
   const [editingClass, setEditingClass] = useState<{ subject: string; className: string; newClassName: string } | null>(null);
   const [editStudents, setEditStudents] = useState<string[]>([]);
+  // 生徒削除確認モーダル
+  const [deleteStudentTarget, setDeleteStudentTarget] = useState<{ subject: string; className: string; student: string } | null>(null);
+  // クラス名変更警告モーダル
+  const [classRenameWarning, setClassRenameWarning] = useState<{ subject: string; oldName: string; newName: string } | null>(null);
+  // 保存前最終確認モーダル
+  const [saveConfirm, setSaveConfirm] = useState<{ subject: string; oldName: string; newName: string; changes: string[] } | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newClassName, setNewClassName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -119,7 +125,8 @@ export default function StudentRoster() {
   };
 
   // クラス名編集（名簿編集と一括保存）
-  const saveClassEdit = async (subject: string, oldName: string, newName: string) => {
+  // クラス編集保存前の最終確認
+  const saveClassEdit = (subject: string, oldName: string, newName: string) => {
     const trimmedName = newName.trim();
     if (!trimmedName) return;
     // クラス名が変更された場合、重複チェック
@@ -127,14 +134,28 @@ export default function StudentRoster() {
       setError(`クラス名「${trimmedName}」は既に存在します。別の名前を入力してください。`);
       return;
     }
+    // 変更点リストアップ
+    const changes: string[] = [];
+    if (trimmedName !== oldName) changes.push(`クラス名変更: 「${oldName}」→「${trimmedName}」`);
+    const before = data[subject]?.[oldName] || [];
+    const after = editStudents;
+    const added = after.filter(s => !before.includes(s));
+    const removed = before.filter(s => !after.includes(s));
+    if (added.length) changes.push(`追加: ${added.join(', ')}`);
+    if (removed.length) changes.push(`削除: ${removed.join(', ')}`);
+    setSaveConfirm({ subject, oldName, newName: trimmedName, changes });
+  };
+
+  // 保存実行
+  const doSaveClassEdit = async (subject: string, oldName: string, newName: string) => {
     setIsSaving(true);
     const subjectRef = ref(database, `roster/${subject}`);
-    if (trimmedName !== oldName) {
+    if (newName !== oldName) {
       await update(subjectRef, {
-        [trimmedName]: editStudents
+        [newName]: editStudents
       });
       await remove(ref(database, `roster/${subject}/${oldName}`));
-      toast({ title: '保存しました', description: `クラス名を ${trimmedName} に変更しました。` });
+      toast({ title: '保存しました', description: `クラス名を ${newName} に変更しました。` });
     } else {
       await set(ref(database, `roster/${subject}/${oldName}`), editStudents);
       toast({ title: '保存しました', description: `名簿を更新しました。` });
@@ -143,6 +164,7 @@ export default function StudentRoster() {
     setEditStudents([]);
     setIsSaving(false);
     setError(null);
+    setSaveConfirm(null);
   };
 
   // クラス削除
@@ -350,14 +372,16 @@ export default function StudentRoster() {
                               <div key={index} className="flex items-center justify-between p-1 bg-gray-50 rounded text-xs">
                                 <span className="truncate pr-1">{displayName}</span>
                                 {isEditing && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setEditStudents(editStudents.filter(s => s !== student))}
-                                    className="text-red-600 hover:text-red-700 h-4 w-4 p-0 flex-shrink-0"
-                                  >
-                                    <Trash2 className="w-2 h-2" />
-                                  </Button>
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setDeleteStudentTarget({ subject: subject.id, className, student })}
+                                      className="text-red-600 hover:text-red-700 h-4 w-4 p-0 flex-shrink-0"
+                                    >
+                                      <Trash2 className="w-2 h-2" />
+                                    </Button>
+                                  </>
                                 )}
                               </div>
                             );
@@ -406,6 +430,82 @@ export default function StudentRoster() {
           ))}
         </Tabs>
       </div>
+    {/* 生徒削除確認モーダル */}
+    {deleteStudentTarget && (
+      <AlertDialog open onOpenChange={open => { if (!open) setDeleteStudentTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>生徒を削除しますか？</AlertDialogTitle>
+            <AlertDialogDescription>
+              「{deleteStudentTarget.student}」を本当に削除しますか？この操作は元に戻せますがややこしくなるのでやめてください。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteStudentTarget(null)}>キャンセル</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setEditStudents(editStudents.filter(s => s !== deleteStudentTarget.student));
+                setDeleteStudentTarget(null);
+              }}
+            >削除する</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
+
+    {/* クラス名変更警告モーダル */}
+    {classRenameWarning && (
+      <AlertDialog open onOpenChange={open => { if (!open) setClassRenameWarning(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <span className="flex items-center gap-2 text-red-600"><ShieldAlert className="w-5 h-5" />管理者向け警告</span>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              クラス名を変更しようとしています。<br />
+              <span className="font-bold text-red-600">あなたはサイトの管理者ですか？</span><br />
+              クラス名変更は全体に影響します。十分ご注意ください。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setClassRenameWarning(null)}>キャンセル</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                saveClassEdit(classRenameWarning.subject, classRenameWarning.oldName, classRenameWarning.newName);
+                setClassRenameWarning(null);
+              }}
+            >続行する</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
+
+    {/* 保存前最終確認モーダル */}
+    {saveConfirm && (
+      <AlertDialog open onOpenChange={open => { if (!open) setSaveConfirm(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>変更内容の最終確認</AlertDialogTitle>
+            <AlertDialogDescription>
+              以下の変更を保存します。
+            </AlertDialogDescription>
+            <ul className="list-disc ml-4 text-xs text-gray-700">
+              {saveConfirm.changes.length ? saveConfirm.changes.map((c, i) => <li key={i}>{c}</li>) : <li>変更なし</li>}
+            </ul>
+            <div className="mt-2">
+              <span className="font-bold text-red-600">この操作は元に戻せません。よろしいですか？</span>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSaveConfirm(null)}>キャンセル</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => doSaveClassEdit(saveConfirm.subject, saveConfirm.oldName, saveConfirm.newName)}
+              disabled={isSaving}
+            >保存する</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
     </div>
   );
 }

@@ -22,6 +22,9 @@ export default function TermsPage() {
         <p>
           本サービスは、皆さんの善意と協力によって成り立っています。安心してご利用いただけるよう努めておりますが、個人情報の取り扱いにはご自身でもご配慮ください。
         </p>
+        <p>
+          利用規約に同意の上、サービスをご利用ください。今後ともよろしくお願いいたします。
+        </p>
       </div>
       <div className="mt-10 flex justify-center">
         <button

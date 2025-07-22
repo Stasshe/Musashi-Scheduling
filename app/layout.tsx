@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_JP } from 'next/font/google';
+import Footer from '@/components/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSansJP = Noto_Sans_JP({ 
@@ -29,7 +30,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#00d9ff79" />
       </head>
       <body className={`${inter.className} ${notoSansJP.variable} font-sans`}>
-        {children}
+  {children}
+  <Footer />
       </body>
     </html>
   );

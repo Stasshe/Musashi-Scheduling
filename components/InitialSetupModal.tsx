@@ -46,6 +46,7 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
   // studentConfigs: { [name]: { isVisible: boolean } }
   const [studentConfigs, setStudentConfigs] = useState<{ [name: string]: { isVisible?: boolean } }>({});
   const [isVisible, setIsVisible] = useState<boolean>(true); // デフォルト公開
+  const [agreed, setAgreed] = useState<boolean>(false); // 利用規約同意チェック
 
   // studentConfigs取得
   useEffect(() => {
@@ -238,6 +239,17 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
                   onChange={(e) => setName(e.target.value)}
                   className="text-lg"
                 />
+                {/* 利用規約同意チェックボックス */}
+                <div className="mt-4 flex items-center gap-2">
+                  <Checkbox
+                    id="agreeTerms"
+                    checked={agreed}
+                    onCheckedChange={checked => setAgreed(!!checked)}
+                  />
+                  <Label htmlFor="agreeTerms" className="text-base">
+                    <span> <a href="/terms" target="_blank" className="underline text-blue-600">利用規約</a>に同意します</span>
+                  </Label>
+                </div>
                 <div className="mt-4 text-center">
                   <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded font-semibold text-base">
                     下の「保存して始める」ボタンを押してください
@@ -275,8 +287,8 @@ export default function InitialSetupModal({ isOpen, onClose, name: propName, set
             </div>
             <div className="flex flex-col items-center space-y-2 mt-6">
               <Button 
-                onClick={handleSave} 
-                disabled={!name || !name.trim()}
+                onClick={handleSave}
+                disabled={!name || !name.trim() || (!editMode && !agreed)}
                 className="px-8 py-2 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {editMode ? '保存' : '保存して始める'}

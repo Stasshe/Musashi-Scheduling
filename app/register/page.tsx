@@ -21,6 +21,9 @@ export default function RegisterPage() {
           <div className="text-lg text-gray-700">
             現在の所属クラス: <span className="font-bold">{userProfile.registeredClasses.length > 0 ? userProfile.registeredClasses.join(', ') : '未登録'}</span>
           </div>
+          <div className="text-lg text-gray-700">
+           文系クラスとか、色々クラスまだ未登録やから勝手に追加しとって〜
+          </div>
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow"
             onClick={() => setModalOpen(true)}

@@ -171,7 +171,7 @@ export function EditScheduleModal({
                 step={300} // 5分刻み
                 list="data-list"
                 min="08:00"
-                max="23:00"
+                max="23:50"
               />
             </div>
           </div>
